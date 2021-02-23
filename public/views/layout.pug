@@ -1,0 +1,15 @@
+doctype html
+block globals 
+    - var title = 'Home' 
+    - var desc = 'Site de notícias'
+
+html(lang='pt')
+head
+    title #{title} - Tifu
+    block sources
+        link(rel="stylesheet", href="../style/tailwind.css")
+    meta(name="viewport", content="width=device-width, initial-scale=1.0")
+    meta(name="description", content= desc + " - Tifu") 
+body
+    .container.mx-auto
+        block content
