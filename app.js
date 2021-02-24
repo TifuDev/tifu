@@ -1,7 +1,7 @@
 const express = require('express');
-var request = require('request');
+const newsData = require('./api/getNewData');
 
-const port = 3000;
+const port = 8080;
 var app = express();
 
 app.set('view engine', 'pug');
@@ -13,18 +13,23 @@ app.get('/', (req, res) => {
 })
 
 app.get('/new/:new', (req, res) => {
-    
-})
-
-app.get('/api/newcontent/:new', (req, res) => {
-    require('./api/getNew').getNew(req.params.new).then(data => {
-        res.send(require('./api/getNewContent').readFile(data.path))
+    require('./api/getNew').getNew(req.params.new).then(news => {
+        res.render('new', { 
+            content: require('./api/getNewContent').readFile(news.path),
+            title: news.title,
+            desc: news.desc
+        })
     })
 })
 
-app.get('/api/getnew/:new', (req, res) => {
-    require('./api/getNew').getNew(req.params.new).then(news => {
-        res.json(news)
+app.get('/api/newsdata/:new', (req, res) => {
+    newsData.getNews(req.params.new).then(data => res.json(data))
+})
+
+app.get('/api/newscontent/:new', (req, res) => {
+    newsData.getNews(req.params.new, 'path').then(data => {
+        console.log(data.path)
+        res.send(newsData.getContent(data.path))
     })
 })
 
