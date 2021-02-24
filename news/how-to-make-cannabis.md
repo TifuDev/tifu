@@ -18,6 +18,7 @@ Essa é a estrutura:
 As noticias serão salvas no diretório 'news' e serão salvas em Markdown como no exemplo atual
 
 Pq o Markdown?
+
 1. Por enquanto, é a melhor forma de guardar texto formatado
 2. Fácil para entender
 3. Tem diversos recursos, entre eles guardar links, imagens, cabeçalhos, parágrafos e etc...
