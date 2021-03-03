@@ -37,6 +37,14 @@ async function getTokens(username){
     if (query !== null){
         status = 'SUCC'
         reftoken = query.reftoken
+        verify(reftoken, process.env.REFTOKEN_SECRET, (err) => {
+            if(!err) return;
+            reftoken = sign(
+                payload= { username: username},
+                secretOrPrivateKey= process.env.REFTOKEN_SECRET,
+                options= { expiresIn: process.env.REFTOKEN_LIFE }
+            )
+        })
         token = sign({ username: username }, process.env.ACCTOKEN_SECRET, { expiresIn: process.env.ACCTOKEN_LIFE })
     }
     
@@ -46,5 +54,5 @@ async function getTokens(username){
         reftoken: reftoken
     } 
 }
-getTokens('hytalo-bassi').then(i => console.log(verify(i.token, process.env.ACCTOKEN_SECRET)))
+
 module.exports = { generateToken, getTokens }

@@ -1,24 +1,24 @@
-# Okay isso não é sobre cannabis
+# Easter eggs não são uteis
 
-Isso é a forma que o database trabalhará.
+Eu sei é legalzinho mas não é __utíl__, é só legal mesmo
+e as vezes te ajuda
 
-Nosso database é o mongodb, e ele será responsável de guardar as informações sobre a noticia
+Só toma espaço, como por exemplo este post. Olhe a estrutura dele
 
-Essa é a estrutura:
+``{
+    title: 'Por que os Easter Eggs não são bons?',
+    desc: 'Provávelmente você já viu um Easter Egg nos apps que você usa, e até é legal mas Easter Eggs não são bons!',
+    path: 'news/how-to-make-cannabis.md',
+    id: 'how-to-make-cannabis',
+    author: 'hytalo-bassi',
+    date: '2021-02-23T00:00:00.000Z'
+}``
 
-{
-    'title': 'Como fazer cannabis(maconha)',
-    'desc' : 'Bom, hoje você irá fazer aquela bela maconha para os seus amigos ou para relaxar kkk',
-    'path' : 'news/how-to-make-cannabis.md',
-    'id': 'how-to-make-cannabis',
-    'author' : 'admin',
-    'date' : new Date('2021-02-23')
-}
+Os motivos
+1. Você, cliente não sabe se é um erro ou algo do tipo
+2. Dá um pouco de trabalho para fazer
 
-As noticias serão salvas no diretório 'news' e serão salvas em Markdown como no exemplo atual
+Masss, parando para pensar isto é um easter egg. E estou usando ele para fazer o teste do Markdown,
+então é de certa forma utíl(eu acho)
 
-Pq o Markdown?
-
-1. Por enquanto, é a melhor forma de guardar texto formatado
-2. Fácil para entender
-3. Tem diversos recursos, entre eles guardar links, imagens, cabeçalhos, parágrafos e etc...
+Bom de toda forma este é meu [Github](https://github.com/hytalo-bassi)

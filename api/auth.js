@@ -1,4 +1,4 @@
-const { verify } = require('jsonwebtoken')
+const { verify, sign } = require('jsonwebtoken')
 const { user } = require('../utils/db')
 
 require('dotenv').config()
@@ -11,8 +11,24 @@ function auth(req, res, next){
     next()
 }
 
-// function getAccess(refreshToken, username){
-//     user.findOne({ username: username }, 'reftoken')
-// }
+// When access token has expired create a new with refresh token
+async function getAccess(refreshToken){
+    let status = 'REFI';
+    let token;
 
-module.exports = { auth }
+    await verify(refreshToken, process.env.REFTOKEN_SECRET, async (err, dec) => {
+        if (err) return;
+        const users = await user.findOne({ reftoken: refreshToken }, 'reftoken')
+        if(users !== null){
+            token = sign({username: dec.username}, process.env.ACCTOKEN_SECRET, {expiresIn: process.env.ACCTOKEN_LIFE})
+            status = 'SUCC'
+        } else{ status = 'FORB' }
+    })
+
+    return {
+        status: status,
+        token: token
+    }
+}
+
+module.exports = { auth, getAccess }

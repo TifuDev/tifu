@@ -2,9 +2,13 @@ doctype html
 html(lang='pt')
     head
         title=title || 'Home - Tifu'
-        link(rel="stylesheet", href="../style/tailwind.css")
+        link(rel="stylesheet", href="/style/tailwind.min.css")
         meta(name="viewport", content="width=device-width, initial-scale=1.0")
-        meta(name="description", content=desc || 'Um grande site de noticias') 
+        meta(name="description", content=desc || 'Um grande site de noticias')
+        block sources
     body
-        .container.mx-auto
+        nav.bg-blue-100.p-2.rounded-md
+            .flex.justify-between
+                img(src="/svg/logo.svg", alt="Logo", width="32px", height="32px")
+        .container.p-2
             block content

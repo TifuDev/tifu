@@ -1,0 +1,10 @@
+extends layout.pug
+block sources 
+    script(src="https://cdnjs.cloudflare.com/ajax/libs/showdown/1.9.0/showdown.min.js")
+    script(src="/js/editor.js") 
+block content
+    .flex.flex-row
+        div.border-blue-500.border-2.flex-1
+            textarea(placeholder="# My awesome header").w-full#content
+        div(class="w-1/2").border-blue-500.border-2.flex-1#preview
+            h1 Carregando

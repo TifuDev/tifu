@@ -1,0 +1,7 @@
+extends layout.pug
+
+block content
+    if notice_not_found 
+        p A noticia ainda não foi impressa
+    else
+        |!{content}
