@@ -1,8 +1,16 @@
 const { verify, sign } = require('jsonwebtoken')
 const { getTokens } = require('./token')
 const { user } = require('../utils/db')
+const { hashString } = require('../utils/hash')
 
 require('dotenv').config()
+
+async function loginToRefresh(username, passwd){
+    return await user.findOne({
+        username: username,
+        passwd: hashString(passwd)
+    }, 'reftoken') 
+}
 
 function auth(req, res, next){
     const authHeader = req.headers['authorization']
@@ -43,16 +51,9 @@ async function refreshAccess(refreshToken){
 
 async function newRefresh(username, passwd){
     let status = 'FORB'
-    const hashedPass = require('crypto')
-        .createHash('sha256')
-        .update(passwd)
-        .digest('hex')
 
     let refreshToken;
-    const serverRefreshToken = await user.findOne({
-        username: username,
-        passwd: hashedPass
-    }, 'reftoken')
+    const serverRefreshToken = await loginToRefresh(username, passwd)
 
     if(serverRefreshToken !== null){
         refreshToken = sign(
@@ -77,17 +78,9 @@ async function newRefresh(username, passwd){
 }
 
 async function getRefresh(username, passwd){
-    const hashedPass = require('crypto')
-        .createHash('sha256')
-        .update(passwd)
-        .digest('hex')
     let status = 'FORB'
     let refreshToken;
-
-    const serverRefreshToken = await user.findOne({
-        username: username,
-        passwd: hashedPass
-    }, 'reftoken')
+    const serverRefreshToken = await loginToRefresh(username, passwd)
 
     if(serverRefreshToken !== null){
         refreshToken = serverRefreshToken.reftoken
@@ -101,28 +94,21 @@ async function getRefresh(username, passwd){
 }
 
 async function login(username, passwd){
-    const hashedPass = require('crypto')
-        .createHash('sha256')
-        .update(passwd)
-        .digest('hex')
-    
     const users = await user.findOne({
-        username: username
+        username: username,
+        passwd: hashString(passwd)
     })
 
-    let status = 'UNOTF'
+    let status = 'WPWD'
     let token;
     let reftoken;
 
     if (users !== null){
-        if (users.passwd === hashedPass){
             const tokens = await getTokens(username)
             token = tokens.token
             reftoken = tokens.reftoken
-            
             status = 'SUCC'
-        } else { status = "WPWD"}
-    }
+    }else { status = 'UNOTF' }
 
     return {
         status: status,

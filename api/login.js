@@ -1,29 +1,24 @@
 const db = require('../utils/db')
+const { hashString } = require('../utils/hash')
 const { getTokens } = require('./token')
 
 async function login(username, passwd){
-    const hashedPass = require('crypto')
-        .createHash('sha256')
-        .update(passwd)
-        .digest('hex')
-    
     const users = await db.user.findOne({
-        username: username
+        username: username,
+        passwd: hashString(passwd)
     })
 
-    let status = 'UNOTF'
+    let status = 'WPWD'
     let token;
     let reftoken;
 
     if (users !== null){
-        if (users.passwd === hashedPass){
-            const tokens = await getTokens(username)
-            token = tokens.token
-            reftoken = tokens.reftoken
-            
-            status = 'SUCC'
-        } else { status = "WPWD"}
-    }
+        const tokens = await getTokens(username)
+        token = tokens.token
+        reftoken = tokens.reftoken
+        
+        status = 'SUCC'
+    }else{ status = "UNOTF" }
 
     return {
         status: status,

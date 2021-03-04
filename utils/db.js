@@ -20,7 +20,11 @@ var user = mongoose.model('user', mongoose.Schema({
         posts: Array,
         reftoken: String,
         passwd: String
-    }, { versionKey: false })
+    }, {
+        versionKey: false,
+        _id: false, 
+        id: false
+    })
 )
 
 mongoose.connect(uri, {
