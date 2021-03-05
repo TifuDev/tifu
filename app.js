@@ -1,8 +1,8 @@
 const express = require('express');
-const newsData = require('./api/getNewData');
+const notice = require('./api/notice')
 const compression = require('compression')
 const showdown = require('showdown')
-const auth = require('./api/auth2')
+const auth = require('./api/security')
 
 const port = 3000;
 var app = express();
@@ -17,9 +17,22 @@ app.get('/', (req, res) => {
     res.render('index')
 })
 
-app.get('/login', (req, res) => {
-    res.render('login')
-})
+app.route('/login')
+    .get((req, res) => {
+        res.render('login')
+    })
+    .post((req, res) => {
+        auth.login(req.body.username, req.body.passwd).then(data => {
+            if (data.status === "SUCC"){
+                res.cookie('access', data.token)
+                res.cookie('refresh', data.reftoken)
+
+                res.render('index')
+            } else {
+                res.render('login', { status: data.status })
+            }
+        })
+    })
 
 app.get('/new/:new', (req, res) => {
     const classMap = {
@@ -41,12 +54,12 @@ app.get('/new/:new', (req, res) => {
         extensions: [bindings]
     })
 
-    newsData.getNews(req.params.new).then(notice => {
-        if(notice !== null){
+    notice.noticeData(req.params.new).then(data => {
+        if(data !== null){
             res.render('notice', {
-                title: notice.title,
-                desc: notice.desc,
-                content: converter.makeHtml(newsData.getContent(notice.path))
+                title: data.title,
+                desc: data.desc,
+                content: converter.makeHtml(notice.noticeContent(data.path))
             })
         }else{
             res.status(404).render('notice', {notice_not_found: true})
@@ -59,12 +72,12 @@ app.get('/editor', (req, res) => {
 })
 
 app.get('/api/new/:new/data', (req, res) => {
-    newsData.getNews(req.params.new).then(data => res.json(data))
+    notice.noticeContent(req.params.new).then(data => res.json(data))
 })
 
 app.get('/api/new/:new/content', (req, res) => {
-    newsData.getNews(req.params.new, 'path').then(data => {
-        res.send(newsData.getContent(data.path))
+    notice.noticeData(req.params.new, 'path').then(data => {
+        res.send(notice.noticeContent(data.path))
     })
 })
 

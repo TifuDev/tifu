@@ -2,8 +2,7 @@ const { verify, sign } = require('jsonwebtoken')
 const { getTokens } = require('./token')
 const { user } = require('../utils/db')
 const { hashString } = require('../utils/hash')
-
-require('dotenv').config()
+require('dotenv').config();
 
 async function loginToRefresh(username, passwd){
     return await user.findOne({
@@ -12,7 +11,7 @@ async function loginToRefresh(username, passwd){
     }, 'reftoken') 
 }
 
-function auth(req, res, next){
+function authMiddleware(req, res, next){
     const authHeader = req.headers['authorization']
     const token = authHeader && authHeader.split(' ')[1]
 
@@ -117,4 +116,57 @@ async function login(username, passwd){
     }
 }
 
-module.exports = { auth, refreshAccess, newRefresh, getRefresh, login }
+async function generateToken(username){
+    const payload = {username: username}
+    
+    let token;
+    let reftoken;
+    let status = 'UNOTF'
+
+    if(await user.findOne({username: username}) !== undefined){
+        token = sign(payload, process.env.ACCTOKEN_SECRET, {expiresIn: process.env.ACCTOKEN_LIFE})
+        reftoken = sign(payload, process.env.REFTOKEN_SECRET, {expiresIn: process.env.REFTOKEN_LIFE})
+
+        await user.updateOne({ username: username }, {
+            $set: {reftoken: reftoken}
+        })
+
+        status = 'SUCC'
+    }
+
+    return {
+        status: status,
+        token: token,
+        reftoken: reftoken
+    }
+}
+
+async function getTokens(username){
+    const query = await user.findOne({username: username},  'reftoken')
+    
+    let status = 'UNOTF'
+    let reftoken;
+    let token;
+
+    if (query !== null){
+        status = 'SUCC'
+        reftoken = query.reftoken
+        verify(reftoken, process.env.REFTOKEN_SECRET, (err) => {
+            if(!err) return;
+            reftoken = sign(
+                payload= { username: username},
+                secretOrPrivateKey= process.env.REFTOKEN_SECRET,
+                options= { expiresIn: process.env.REFTOKEN_LIFE }
+            )
+        })
+        token = sign({ username: username }, process.env.ACCTOKEN_SECRET, { expiresIn: process.env.ACCTOKEN_LIFE })
+    }
+    
+    return {
+        status: status,
+        token: token,
+        reftoken: reftoken
+    } 
+}
+
+module.exports = { authMiddleware, login, getTokens, getRefresh, generateToken, newRefresh, refreshAccess}

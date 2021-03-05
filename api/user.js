@@ -1,12 +1,8 @@
 const db = require('../utils/db')
-const { generateToken } = require('./token')
+const { hashString } = require('../utils/hash')
+const { generateToken } = require('./security')
 
 async function createUser(username, email, passwd){
-    const hashedPass = require('crypto')
-        .createHash('sha256')
-        .update(passwd)
-        .digest('hex')
-    
     let status = "SUCC"
     
     const users = await db.user.findOne({
@@ -14,15 +10,10 @@ async function createUser(username, email, passwd){
             {username: username},
             {email: email}
         ]
-    })  
+    })
 
     if (users !== null){
-        if (users.username === username){
-            status = 'UALR'
-        }
-        if (users.email === email){
-            status = 'EALR'
-        }
+        status = (user.username === username) ? 'UALR': 'EALR'
     }
     
     let token;
@@ -32,17 +23,17 @@ async function createUser(username, email, passwd){
         await db.user.create({
             username: username,
             email: email,
-            passwd: hashedPass,
+            passwd: hashString(passwd),
             details: {
                 bio: ""
             },
             posts: []
         })
 
-        let data = await generateToken(username)
-        
-        token = data.token
-        reftoken = data.reftoken
+        generateToken(username).then(data => {
+            token = data.token
+            reftoken = data.reftoken
+        })
     }
 
     return {
@@ -51,6 +42,5 @@ async function createUser(username, email, passwd){
         reftoken: reftoken
     }
 }
-
 
 module.exports = { createUser }
