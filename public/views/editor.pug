@@ -1,0 +1,15 @@
+extends layout.pug
+block sources 
+    script(src="https://cdnjs.cloudflare.com/ajax/libs/showdown/1.9.0/showdown.min.js")
+    script(src="https://code.jquery.com/jquery-3.6.0.min.js")
+    script(src="/js/editor.js")
+
+    style(type="text/css").
+        .empty:before{
+            content: attr(data-placeholder)
+        }
+
+
+block content
+    h1(data-placeholder="Title").empty#title
+    

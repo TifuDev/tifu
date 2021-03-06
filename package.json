@@ -1,6 +1,6 @@
 {
   "name": "tifu",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "",
   "main": "app.js",
   "scripts": {
@@ -11,15 +11,16 @@
   "license": "ISC",
   "dependencies": {
     "compression": "^1.7.4",
+    "cookie-parser": "^1.4.5",
     "dotenv": "^8.2.0",
     "express": "^4.17.1",
     "jsonwebtoken": "^8.5.1",
-    "pug": "^3.0.0",
+    "pug": "^3.0.2",
     "showdown": "^1.9.1"
   },
   "devDependencies": {
     "autoprefixer": "^10.2.4",
-    "mongoose": "^5.11.18",
+    "mongoose": "^5.11.19",
     "postcss": "^8.2.6",
     "tailwindcss": "^2.0.3"
   }

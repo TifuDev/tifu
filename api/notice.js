@@ -5,7 +5,7 @@ async function noticeData(id, projection = undefined) {
 }
 
 function noticeContent(path) {
-    return require('fs').readFileSync(path, 'utf-8')
+    return require('fs').readFileSync(`news/${path}.md`, 'utf-8')
 }
 
 async function createPost(title, desc, id, author, content){

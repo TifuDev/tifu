@@ -1,28 +1,17 @@
-const showdown = window.showdown
-
-const classMap = {
-    h1: 'my-2 text-2xl underline font-semibold',
-    p: 'my-2 font-light',
-    strong: 'font-light',
-    li:'list-disc'
-}
-
-const bindings = Object.keys(classMap)
-    .map(key => ({
-      type: 'output',
-      regex: new RegExp(`<${key}(.*)>`, 'g'),
-      replace: `<${key} class="${classMap[key]}" $1>`
-    }));
-
-const converter = new showdown.Converter({
-    noHeaderId: true,
-    extensions: [bindings]
-})
-
-window.onload = () => {
-    let content = document.getElementById('content')
-    let preview = document.getElementById('preview')
-    content.onchange = (e) => {
-        preview.innerHTML = converter.makeHtml(content.value)
-    }
+window.onload = function(){
+    $('#title').on('click', () => {
+        $(document).on('keydown', (e) => {
+            let text = $('#title').text()
+            if(text.length > 0){
+                $('#title').removeClass('empty')
+            }else{
+                $('#title').addClass('empty')
+            }
+            if(e.which == 8 || e.which == 46){
+                $('#title').text(text.substring(0, text.length-1))
+            }else{
+                $('#title').text(text+e.key)
+            }
+        })
+    })
 }

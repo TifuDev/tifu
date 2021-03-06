@@ -1,14 +1,17 @@
 const express = require('express');
 const notice = require('./api/notice')
 const compression = require('compression')
+const cookieParser = require('cookie-parser')
 const showdown = require('showdown')
-const auth = require('./api/security')
+const auth = require('./api/security');
 
 const port = 3000;
 var app = express();
 
 app.use(compression())
 app.use(express.urlencoded({ extended: false }))
+app.use(cookieParser());
+
 app.set('view engine', 'pug');
 app.set('views', 'public/views');
 app.use(express.static('public'));
@@ -59,7 +62,8 @@ app.get('/new/:new', (req, res) => {
             res.render('notice', {
                 title: data.title,
                 desc: data.desc,
-                content: converter.makeHtml(notice.noticeContent(data.path))
+                content: converter.makeHtml(notice.noticeContent(req.params.new)),
+                date: data.date
             })
         }else{
             res.status(404).render('notice', {notice_not_found: true})
@@ -67,18 +71,16 @@ app.get('/new/:new', (req, res) => {
     })
 })
 
-app.get('/editor', (req, res) => {
-    res.render('new_notice')
+app.get('/editor', (req, res) => {   
+    res.render('editor')
 })
 
 app.get('/api/new/:new/data', (req, res) => {
-    notice.noticeContent(req.params.new).then(data => res.json(data))
+    notice.noticeData(req.params.new).then(data => res.json(data))
 })
 
 app.get('/api/new/:new/content', (req, res) => {
-    notice.noticeData(req.params.new, 'path').then(data => {
-        res.send(notice.noticeContent(data.path))
-    })
+    res.send(notice.noticeContent(req.params.new))
 })
 
 app.get('/api/get/access', (req, res) => {
@@ -90,7 +92,7 @@ app.get('/api/get/access', (req, res) => {
     } else{
         res.json({
             status: 'FORB',
-            reftoken: undefined
+            token: undefined
         })
     }
 })
@@ -101,5 +103,9 @@ app.post('/api/login', (req, res) => {
         res.json(data)
     })
 })
+
+app.use(function (req, res){
+	res.status(404).send('Unable to find the requested resource!');
+});
 
 app.listen(port, () => console.log(`Server on localhost:${port}`))

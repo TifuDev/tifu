@@ -11,7 +11,11 @@ var news = mongoose.model('new', mongoose.Schema({
         id: String,
         author: String,
         date: Date
-    }, { versionKey: false }))
+    }, {
+        versionKey: false,
+        _id: false, 
+        id: false
+    }))
 
 var user = mongoose.model('user', mongoose.Schema({
         username: String,

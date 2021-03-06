@@ -1,7 +1,15 @@
 extends layout.pug
 
 block content
+    - var pad = function pad(num, size) {
+    -        var s = "000000000" + num;
+    -       return s.substr(s.length-size);
+    - }
     if notice_not_found 
         p A noticia ainda não foi impressa
     else
-        |!{content}
+        article
+            main 
+                |!{content}
+            span
+                time(datetime=date) Postado #{pad(date.getUTCDate(), 2)}/#{pad(date.getMonth()+1, 2)}/#{date.getFullYear()}
