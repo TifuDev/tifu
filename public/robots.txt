@@ -4,6 +4,3 @@ Disallow: /svg/
 Disallow: /style/
 Disallow: /js/
 Disallow: /fonts/
-Disallow: /editor
-
-Sitemap: https://localhost:3000/sitemap.xml
