@@ -1,11 +1,11 @@
-const express = require('express');
-const notice = require('./api/notice')
-const compression = require('compression')
-const cookieParser = require('cookie-parser')
-const showdown = require('showdown')
-const auth = require('./api/security');
+const express = require('express'),
+notice = require('./api/notice'),
+compression = require('compression'),
+cookieParser = require('cookie-parser'),
+showdown = require('showdown'),
+auth = require('./api/security'),
+port = 3000;
 
-const port = 3000;
 var app = express();
 
 app.use(compression())
@@ -17,7 +17,7 @@ app.set('views', 'public/views');
 app.use(express.static('public'));
 
 app.get('/', (req, res) => {
-    res.render('index')
+    notice.seeCatolog((err, doc) => res.render('index', {data: doc}))
 })
 
 app.route('/login')
@@ -25,15 +25,15 @@ app.route('/login')
         res.render('login')
     })
     .post((req, res) => {
-        auth.login(req.body.username, req.body.passwd).then(data => {
+        // !HERE
+        auth.login(req.body.username, req.body.passwd, (data) =>{
             if (data.status === "SUCC"){
                 res.cookie('access', data.token)
                 res.cookie('refresh', data.reftoken)
 
-                res.render('index')
-            } else {
-                res.render('login', { status: data.status })
-            }
+
+                res.redirect('/')
+            } else res.render('login', { status: data.status });
         })
     })
 
@@ -43,65 +43,58 @@ app.get('/new/:new', (req, res) => {
         p: 'my-2 font-light',
         strong: 'font-light',
         li:'list-disc'
-    }
+    },
 
-    const bindings = Object.keys(classMap)
+    bindings = Object.keys(classMap)
         .map(key => ({
           type: 'output',
           regex: new RegExp(`<${key}(.*)>`, 'g'),
           replace: `<${key} class="${classMap[key]}" $1>`
-        }));
+        })),
     
-    const converter = new showdown.Converter({
+    converter = new showdown.Converter({
         noHeaderId: true,
         extensions: [bindings]
     })
-
-    notice.noticeData(req.params.new).then(data => {
-        if(data !== null){
-            res.render('notice', {
-                title: data.title,
-                desc: data.desc,
-                content: converter.makeHtml(notice.noticeContent(req.params.new)),
-                date: data.date
-            })
-        }else{
+    // !HERE
+    notice.getNotice(req.params.new, (notice) => {
+        if(notice.data === null){
             res.status(404).render('notice', {notice_not_found: true})
+        }else {
+            res.render('notice', {
+                title: notice.data.title,
+                desc: notice.data.desc,
+                content: converter.makeHtml(notice.content),
+                date: notice.data.date
+            })
         }
     })
 })
 
-app.get('/editor', (req, res) => {   
+app.get('/editor', (req, res) => {
     res.render('editor')
 })
 
-app.get('/api/new/:new/data', (req, res) => {
-    notice.noticeData(req.params.new).then(data => res.json(data))
-})
-
-app.get('/api/new/:new/content', (req, res) => {
-    res.send(notice.noticeContent(req.params.new))
+app.get('/api/new/:new', (req, res) => {
+    // !HERE
+    notice.getNotice(req.params.new, (notice) => res.json(notice))
 })
 
 app.get('/api/get/access', (req, res) => {
     const authHeader = req.headers.authorization
     if(authHeader !== undefined){
-        auth.refreshAccess(authHeader.split(' ')[1]).then(data => {
-            res.json(data)
-        })
-    } else{
-        res.json({
-            status: 'FORB',
-            token: undefined
-        })
-    }
+        // !HERE
+        auth.refreshAccess(authHeader.split(' ')[1], (data) => res.json(data))
+    } else res.status(403);
 })
 
 app.post('/api/login', (req, res) => {
-    const body = req.body
-    auth.login(body.username, body.passwd).then(data => {
-        res.json(data)
-    })
+    // !HERE
+    auth.login(req.body.username, req.body.passwd, (data) => res.json(data))
+})
+
+app.get('/api/catalog', (req, res) => {
+    notice.seeCatolog((err, doc) => res.json(doc))
 })
 
 app.use(function (req, res){
@@ -109,3 +102,5 @@ app.use(function (req, res){
 });
 
 app.listen(port, () => console.log(`Server on localhost:${port}`))
+
+// TODO Implement error handler

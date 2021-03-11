@@ -10,7 +10,8 @@ var news = mongoose.model('new', mongoose.Schema({
         path: String,
         id: String,
         author: String,
-        date: Date
+        date: Date,
+        downloads: Number
     }, {
         versionKey: false,
         _id: false, 

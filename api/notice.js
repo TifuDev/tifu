@@ -1,23 +1,32 @@
 const db = require('../utils/db')
 
-async function noticeData(id, projection = undefined) {
-    return await db.news.findOne({id: id}, projection)
-}
+async function getNotice(id, callback){
+    let notice = {
+        data: {},
+        content: ""
+    }
 
-function noticeContent(path) {
-    return require('fs').readFileSync(`news/${path}.md`, 'utf-8')
+    try{
+        notice.data = await db.news.findOneAndUpdate({id: id}, {
+            $inc: {downloads: 1}
+        })
+        
+        notice.content = require('fs').readFileSync(`news/${id}.md`, 'utf-8')
+    } finally{
+        callback(notice)
+    }
 }
 
 async function createPost(title, desc, id, author, content){
     let status = 'UNOTF';
 
-    const authorExits = await db.user.findOne({ username: author }, 'posts')
-    const noticeExists = await db.news.findOne({
+    const authorExits = await db.user.findOne({ username: author }, 'posts'),
+    noticeExists = await db.news.findOne({
         $or: [
             {id: id},
             {title: title}
         ]
-    })
+    });
 
     if (authorExits !== null){
         if (noticeExists !== null){
@@ -30,7 +39,7 @@ async function createPost(title, desc, id, author, content){
                 }
             )
             status = 'SUCC'
-        } else { status = 'NALR' }
+        } else status = 'NALR';
     }
 
     return {
@@ -52,8 +61,14 @@ async function addToCatalog(title, desc, path, id, author){
         path: path,
         id: id,
         author: author,
-        date: new Date()
+        date: new Date(),
+        downloads: 0
     })
 }
 
-module.exports = {noticeData, noticeContent, createPost}
+async function seeCatolog(callback){
+    db.news.find({}, callback)
+}
+
+// module.exports = {createPost, getNotice , seeCatolog, getNoticeAsync}
+module.exports = {createPost, seeCatolog, getNotice}

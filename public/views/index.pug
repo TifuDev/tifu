@@ -1,3 +1,6 @@
 extends layout.pug 
 block content
-    h1 Hello World!
+    h1 Bem vindo(a) ao Tifu
+    each i in data
+        h1= i.title
+        p= i.desc

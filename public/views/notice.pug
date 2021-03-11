@@ -1,6 +1,8 @@
 extends layout.pug
 
 block content
+    - var monthNames = ["janeiro", "fevereiro", "março", "abril", "maio", "junho","julho", "agosto", "setembro", "outubro", "novembro", "dezembro"]
+
     - var pad = function pad(num, size) {
     -        var s = "000000000" + num;
     -       return s.substr(s.length-size);
@@ -12,4 +14,4 @@ block content
             main 
                 |!{content}
             span
-                time(datetime=date) Postado #{pad(date.getUTCDate(), 2)}/#{pad(date.getMonth()+1, 2)}/#{date.getFullYear()}
+                time(datetime=date) Postado #{pad(date.getUTCDate(), 2)} de #{monthNames[date.getMonth()]} de #{date.getFullYear()}

@@ -10,17 +10,6 @@ async function loginToRefresh(username, passwd){
     }, 'reftoken') 
 }
 
-// function authMiddleware(req, res, next){
-//     const authHeader = req.headers['authorization']
-//     const token = authHeader && authHeader.split(' ')[1]
-
-//     if (token == null) return res.sendStatus(401)    
-//     verify(token, process.env.ACCTOKEN_SECRET, (err) => {
-//         if (err) return;
-//         next()
-//     })
-// }
-
 function authMiddleware(req, res, next){
     try {
         if(req.cookies.token === null) return res.status(401)
@@ -62,13 +51,38 @@ async function getTokens(username){
     } 
 }
 
-async function refreshAccess(refreshToken){
+// async function refreshAccess(refreshToken){
+//     let status = 'INVT'
+//     const serverRefreshToken = await user.findOne({ reftoken: refreshToken }, 'reftoken')
+
+//     let token;
+//     if(serverRefreshToken !== null){
+//         // Server did forget you, duh
+//         status = 'SDFY'
+//         verify(refreshToken, process.env.REFTOKEN_SECRET, (err, decToken) => {
+//             if(err) return;
+//             token = sign(
+//                 payload= { username: decToken.username },
+//                 secretOrPrivateKey= process.env.ACCTOKEN_SECRET,
+//                 options= { expiresIn: process.env.ACCTOKEN_LIFE }
+//             )
+    
+//             status = 'SUCC'
+//         })
+//     } else{ status = 'FORB' }
+
+//     return {
+//         status: status,
+//         token: token
+//     }
+// }
+
+async function refreshAccess(refreshToken, callback){
     let status = 'INVT'
     const serverRefreshToken = await user.findOne({ reftoken: refreshToken }, 'reftoken')
 
     let token;
     if(serverRefreshToken !== null){
-        // Server did forget you, duh
         status = 'SDFY'
         verify(refreshToken, process.env.REFTOKEN_SECRET, (err, decToken) => {
             if(err) return;
@@ -80,12 +94,12 @@ async function refreshAccess(refreshToken){
     
             status = 'SUCC'
         })
-    } else{ status = 'FORB' }
+    } else status = 'FORB';
 
-    return {
+    callback({
         status: status,
         token: token
-    }
+    })
 }
 
 async function newRefresh(username, passwd){
@@ -132,28 +146,28 @@ async function getRefresh(username, passwd){
     }
 }
 
-async function login(username, passwd){
+async function login(username, passwd, callback){
     const users = await user.findOne({
         username: username,
         passwd: hashString(passwd)
     })
 
-    let status = 'WPWD'
-    let token;
-    let reftoken;
-
+    let status = 'WPWD',
+    token,
+    reftoken;
+   
     if (users !== null){
-            const tokens = await getTokens(username)
-            token = tokens.token
-            reftoken = tokens.reftoken
-            status = 'SUCC'
-    }else { status = 'UNOTF' }
+        const tokens = await getTokens(username)
+        token = tokens.token
+        reftoken = tokens.reftoken
+        status = 'SUCC'
+    }else status = 'UNOTF';
 
-    return {
+    callback({
         status: status,
         token: token,
         reftoken: reftoken
-    }
+    })
 }
 
 async function generateToken(username){
