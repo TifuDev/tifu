@@ -25,19 +25,16 @@ app.route('/login')
         res.render('login')
     })
     .post((req, res) => {
-        // !HERE
-        auth.login(req.body.username, req.body.passwd, (data) =>{
-            if (data.status === "SUCC"){
-                res.cookie('access', data.token)
-                res.cookie('refresh', data.reftoken)
-
-
-                res.redirect('/')
-            } else res.render('login', { status: data.status });
+        auth.login(req.body.username, req.body.passwd, (err, data) => {
+            if(err) return res.render('login', {credential_not_valid: true})
+            
+            res.cookie('access', data.token)
+            res.cookie('refresh', data.reftoken)
+            res.redirect('/')
         })
     })
 
-app.get('/new/:new', (req, res) => {
+app.get('/new/:new', (req, res, next) => {
     const classMap = {
         h1: 'my-2 text-2xl underline font-semibold',
         p: 'my-2 font-light',
@@ -56,18 +53,15 @@ app.get('/new/:new', (req, res) => {
         noHeaderId: true,
         extensions: [bindings]
     })
-    // !HERE
-    notice.getNotice(req.params.new, (notice) => {
-        if(notice.data === null){
-            res.status(404).render('notice', {notice_not_found: true})
-        }else {
-            res.render('notice', {
-                title: notice.data.title,
-                desc: notice.data.desc,
-                content: converter.makeHtml(notice.content),
-                date: notice.data.date
-            })
-        }
+
+    notice.getNotice(req.params.new, (err, notice) => {
+        if(err) return next(err);
+        res.render('notice', {
+            title: notice.data.title,
+            desc: notice.data.desc,
+            content: converter.makeHtml(notice.content),
+            date: notice.data.date
+        })
     })
 })
 
@@ -75,22 +69,28 @@ app.get('/editor', (req, res) => {
     res.render('editor')
 })
 
-app.get('/api/new/:new', (req, res) => {
-    // !HERE
-    notice.getNotice(req.params.new, (notice) => res.json(notice))
+app.get('/api/new/:new', (req, res, next) => {
+    notice.getNotice(req.params.new, (err, notice) => {
+        if(err) return next();
+        res.json(notice)
+    })
 })
 
-app.get('/api/get/access', (req, res) => {
+app.post('/api/get/access', (req, res) => {
     const authHeader = req.headers.authorization
     if(authHeader !== undefined){
-        // !HERE
-        auth.refreshAccess(authHeader.split(' ')[1], (data) => res.json(data))
-    } else res.status(403);
+        auth.refreshAccess(authHeader.split(' ')[1], (err, data) => {
+            if(err) return res.status(403).send('Token is not valid')
+            res.json(data)
+        })
+    } else res.status(401);
 })
 
 app.post('/api/login', (req, res) => {
-    // !HERE
-    auth.login(req.body.username, req.body.passwd, (data) => res.json(data))
+    auth.login(req.body.username, req.body.passwd, (err, data) => {
+        if(err) return res.status(401).send('Credentials not valid');
+        res.json(data)
+    })
 })
 
 app.get('/api/catalog', (req, res) => {
@@ -102,5 +102,3 @@ app.use(function (req, res){
 });
 
 app.listen(port, () => console.log(`Server on localhost:${port}`))
-
-// TODO Implement error handler

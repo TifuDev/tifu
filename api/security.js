@@ -51,53 +51,24 @@ async function getTokens(username){
     } 
 }
 
-// async function refreshAccess(refreshToken){
-//     let status = 'INVT'
-//     const serverRefreshToken = await user.findOne({ reftoken: refreshToken }, 'reftoken')
-
-//     let token;
-//     if(serverRefreshToken !== null){
-//         // Server did forget you, duh
-//         status = 'SDFY'
-//         verify(refreshToken, process.env.REFTOKEN_SECRET, (err, decToken) => {
-//             if(err) return;
-//             token = sign(
-//                 payload= { username: decToken.username },
-//                 secretOrPrivateKey= process.env.ACCTOKEN_SECRET,
-//                 options= { expiresIn: process.env.ACCTOKEN_LIFE }
-//             )
-    
-//             status = 'SUCC'
-//         })
-//     } else{ status = 'FORB' }
-
-//     return {
-//         status: status,
-//         token: token
-//     }
-// }
-
 async function refreshAccess(refreshToken, callback){
-    let status = 'INVT'
     const serverRefreshToken = await user.findOne({ reftoken: refreshToken }, 'reftoken')
 
-    let token;
-    if(serverRefreshToken !== null){
-        status = 'SDFY'
-        verify(refreshToken, process.env.REFTOKEN_SECRET, (err, decToken) => {
-            if(err) return;
-            token = sign(
-                payload= { username: decToken.username },
-                secretOrPrivateKey= process.env.ACCTOKEN_SECRET,
-                options= { expiresIn: process.env.ACCTOKEN_LIFE }
-            )
-    
-            status = 'SUCC'
-        })
-    } else status = 'FORB';
+    let token,
+    err;
 
-    callback({
-        status: status,
+    try {
+        const dectoken = verify(serverRefreshToken.reftoken, process.env.REFTOKEN_SECRET)
+        token = sign(
+            {username: dectoken.username},
+            process.env.ACCTOKEN_SECRET,
+            {expiresIn: process.env.ACCTOKEN_LIFE}
+        )
+    } catch (e) {
+        err = e
+    }
+
+    callback(err, {
         token: token
     })
 }
@@ -147,24 +118,25 @@ async function getRefresh(username, passwd){
 }
 
 async function login(username, passwd, callback){
-    const users = await user.findOne({
+    const matchedUser = await user.findOne({
         username: username,
         passwd: hashString(passwd)
     })
 
-    let status = 'WPWD',
-    token,
-    reftoken;
-   
-    if (users !== null){
-        const tokens = await getTokens(username)
-        token = tokens.token
-        reftoken = tokens.reftoken
-        status = 'SUCC'
-    }else status = 'UNOTF';
+    let token,
+    reftoken,
+    err;
+    
+    try {
+        const receivedTokens = await getTokens(matchedUser.username)
+        token = receivedTokens.token
+        reftoken = receivedTokens.reftoken
+    } catch (e) {
+        console.log(e)
+        err = e
+    }
 
-    callback({
-        status: status,
+    callback(err, {
         token: token,
         reftoken: reftoken
     })

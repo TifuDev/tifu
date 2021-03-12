@@ -1,20 +1,18 @@
 const db = require('../utils/db')
 
 async function getNotice(id, callback){
-    let notice = {
-        data: {},
-        content: ""
-    }
-
+    let notice = {data: {},content: ""}
+    let err
+    
     try{
         notice.data = await db.news.findOneAndUpdate({id: id}, {
             $inc: {downloads: 1}
         })
         
         notice.content = require('fs').readFileSync(`news/${id}.md`, 'utf-8')
-    } finally{
-        callback(notice)
-    }
+    } catch(e) {err = e};
+
+    callback(err, notice)
 }
 
 async function createPost(title, desc, id, author, content){
@@ -70,5 +68,4 @@ async function seeCatolog(callback){
     db.news.find({}, callback)
 }
 
-// module.exports = {createPost, getNotice , seeCatolog, getNoticeAsync}
 module.exports = {createPost, seeCatolog, getNotice}
