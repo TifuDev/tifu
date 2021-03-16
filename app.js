@@ -24,11 +24,12 @@ app.route('/login')
     .get((req, res) => {
         res.render('login')
     })
+    
     .post((req, res) => {
         auth.login(req.body.username, req.body.passwd, (err, data) => {
             if(err) return res.render('login', {credential_not_valid: true})
             
-            res.cookie('access', data.token)
+            res.cookie('access', data.access)
             res.cookie('refresh', data.reftoken)
             res.redirect('/')
         })
@@ -65,9 +66,14 @@ app.get('/new/:new', (req, res, next) => {
     })
 })
 
-app.get('/editor', (req, res) => {
-    res.render('editor')
-})
+app.route('/editor')
+    .get((req, res) => {
+        res.render('editor')
+    })
+    .post((req, res) => {
+        console.log(req.body)
+        res.send('A')
+    })
 
 app.get('/api/new/:new', (req, res, next) => {
     notice.getNotice(req.params.new, (err, notice) => {
@@ -76,7 +82,7 @@ app.get('/api/new/:new', (req, res, next) => {
     })
 })
 
-app.post('/api/get/access', (req, res) => {
+app.post('/api/get/access', auth.authMiddleware,(req, res) => {
     const authHeader = req.headers.authorization
     if(authHeader !== undefined){
         auth.refreshAccess(authHeader.split(' ')[1], (err, data) => {
@@ -95,6 +101,10 @@ app.post('/api/login', (req, res) => {
 
 app.get('/api/catalog', (req, res) => {
     notice.seeCatolog((err, doc) => res.json(doc))
+})
+
+app.get('/api/middleware', auth.authMiddleware, (req, res) => {
+    res.send(req.username)
 })
 
 app.use(function (req, res){
