@@ -11,16 +11,14 @@ async function loginToRefresh(username, passwd){
 }
 
 function authMiddleware(req, res, next){
-    try {
-        if(req.cookies.token === null) return res.status(401)
-        verify(req.cookies.token, process.env.ACCTOKEN_SECRET)
-        
-        next()
-    } catch (error) {
-        res.status(401).json({
-            status: new Error('Invalid request!')
-        });
-    }
+    const token = req.cookies.access ? req.cookies.access : req.headers.authorization.split(' ')[1]
+    if (!token) return res.status(401).send("No token provided");
+    
+    verify(token, process.env.ACCTOKEN_SECRET, (err, dec) => {
+        if (err) return res.status(403).send('Failed to authenticate');
+        req.username = dec.username;
+        next();
+    });
 }
 
 async function getTokens(username){
@@ -126,18 +124,15 @@ async function login(username, passwd, callback){
     let token,
     reftoken,
     err;
-    
+
     try {
         const receivedTokens = await getTokens(matchedUser.username)
         token = receivedTokens.token
         reftoken = receivedTokens.reftoken
-    } catch (e) {
-        console.log(e)
-        err = e
-    }
-
+    } catch (e) {err = e}
+    
     callback(err, {
-        token: token,
+        access: token,
         reftoken: reftoken
     })
 }
