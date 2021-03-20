@@ -14,8 +14,6 @@ var news = mongoose.model('new', mongoose.Schema({
         downloads: Number
     }, {
         versionKey: false,
-        _id: false, 
-        id: false
     }))
 
 var user = mongoose.model('user', mongoose.Schema({
@@ -26,9 +24,7 @@ var user = mongoose.model('user', mongoose.Schema({
         reftoken: String,
         passwd: String
     }, {
-        versionKey: false,
-        _id: false, 
-        id: false
+        versionKey: false
     })
 )
 

@@ -15,53 +15,31 @@ async function getNotice(id, callback){
     callback(err, notice)
 }
 
-async function createPost(title, desc, id, author, content){
-    let status = 'UNOTF';
+async function createPost(title, desc, id, author, content, callback){
+    let err;
+    try {
+        await db.news.create({
+            title: title,
+            desc: desc,
+            id: id,
+            author: author,
+            date: new Date(),
+            downloads: 0
+        })
 
-    const authorExits = await db.user.findOne({ username: author }, 'posts'),
-    noticeExists = await db.news.findOne({
-        $or: [
-            {id: id},
-            {title: title}
-        ]
-    });
-
-    if (authorExits !== null){
-        if (noticeExists !== null){
-            await addToCatalog(title, desc, writeNotice(id, content), id, author)
-            await db.user.updateOne(
-                { username: author }, {
-                    $push: {
-                        posts: id
-                    }
-                }
-            )
-            status = 'SUCC'
-        } else status = 'NALR';
+        writeNotice(id, content)   
+    } catch (e) {
+        err = e
     }
 
-    return {
-        status: status
-    }
+    callback(err)
 }
 
 function writeNotice(name, content){
     const path = `news/${name}.md`
-    fs.writeFileSync(path, content)
+    require('fs').writeFileSync(path, content)
     
     return path
-}
-
-async function addToCatalog(title, desc, path, id, author){
-    await db.news.create({
-        title: title,
-        desc: desc,
-        path: path,
-        id: id,
-        author: author,
-        date: new Date(),
-        downloads: 0
-    })
 }
 
 async function seeCatolog(callback){

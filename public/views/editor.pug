@@ -12,11 +12,66 @@ block sources
             width: 50%
         }
 block content
-    script(src="/js/notice_preview.js") 
+    script.
+        function publish(title, desc, content){
+            let urlEncodedPairs = [],
+            xhr = new XMLHttpRequest();
+
+            urlEncodedPairs.push(encodeURIComponent('title') + "=" + encodeURIComponent(title))
+            urlEncodedPairs.push(encodeURIComponent('desc') + "=" + encodeURIComponent(desc))
+            urlEncodedPairs.push(encodeURIComponent('content') + "=" + encodeURIComponent(content))
+            urlEncodedPairs.push(encodeURIComponent('id') + "=" + encodeURIComponent(toUrlSafe(title)))
+
+            xhr.open('POST', '/editor')
+            xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded')
+            xhr.send(urlEncodedPairs.join('&'))
+        }
+
+        window.onload = () => {
+            let title = document.getElementById('title'),
+            desc = document.getElementById('desc'),
+            content = document.getElementById('content'),
+            preview = document.getElementById('preview'),
+            converter = new showdown.Converter();
+
+            let empty_elems = document.querySelectorAll('[contenteditable]')
+            for (let i = 0; i < empty_elems.length; i++) {
+                empty_elems[i].oninput = (e) => {
+                    if(empty_elems[i].innerText !== ""){
+                        if(empty_elems[i].id === 'content') preview.innerHTML = converter.makeHtml(formatDocument(
+                            title.innerText,
+                            desc.innerText,
+                            content.innerText
+                        ));
+                        empty_elems[i].classList.remove('empty')
+                    }else{ 
+                        empty_elems[i].classList.add('empty')
+                    } 
+                }
+            }
+            document.getElementById('publish').onclick = () => {
+                const title = document.getElementById('title').innerText
+                const desc = document.getElementById('desc').innerText
+                const content = document.getElementById('content').innerText
+
+                publish(title, desc, formatDocument(title, desc, content))
+            }
+        }
+
+        function formatDocument(title, desc, content){
+            return `# ${title}\n\n${desc}\n\n`+content
+        }
+
+        function toUrlSafe(str){
+            str = str.replaceAll(' ', '_').toLowerCase(1)
+            return encodeURIComponent(str)
+        }
+
     div(class="w-1/2")
         h1(contenteditable, data-placeholder="Meu incrível título").empty#title
         p(contenteditable, data-placeholder="Minha incrivel descrição").empty#desc
-        textarea#content
+        div(contenteditable, data-placeholder="Conteúdo").empty#content
     div(class="w-1/2")#preview
         h1 Preview
+        
     button#publish PUBLICAR

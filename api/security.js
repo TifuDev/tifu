@@ -1,6 +1,7 @@
-const { verify, sign } = require('jsonwebtoken')
+const { verify } = require('jsonwebtoken')
 const { user } = require('../utils/db')
-const { hashString } = require('../utils/hash')
+const { hashString } = require('../utils/hash');
+const { signTokens } = require('../utils/signTokens');
 require('dotenv').config();
 
 async function loginToRefresh(username, passwd){
@@ -21,31 +22,43 @@ function authMiddleware(req, res, next){
     });
 }
 
+function webAuth(req, res, next){
+    const access = req.cookies.access,
+    refresh = req.cookies.refresh;
+
+    verify(access, process.env.ACCTOKEN_SECRET, (err, dec) => {
+        if(err){
+            if(refresh){
+                refreshAccess(refresh, (err, data) => {
+                    if(err) return res.status(403).send('Failed to authenticate')
+                    
+                    res.cookie('access', data.token)
+                    req.username = verify(refresh, process.env.REFTOKEN_SECRET).username
+                    next()
+                })
+            }else return res.status(401).send('No refresh provided')
+        }else{
+            req.username = dec.username
+            next()   
+        }
+    })
+}
 async function getTokens(username){
     const query = await user.findOne({username: username},  'reftoken')
     
     let status = 'UNOTF'
-    let reftoken;
+    let refresh;
     let token;
 
     if (query !== null){
         status = 'SUCC'
-        reftoken = query.reftoken
-        verify(reftoken, process.env.REFTOKEN_SECRET, (err) => {
-            if(!err) return;
-            reftoken = sign(
-                payload= { username: username},
-                secretOrPrivateKey= process.env.REFTOKEN_SECRET,
-                options= { expiresIn: process.env.REFTOKEN_LIFE }
-            )
-        })
-        token = sign({ username: username }, process.env.ACCTOKEN_SECRET, { expiresIn: process.env.ACCTOKEN_LIFE })
+        refresh = await signTokens({username: username}, 'refresh')
+        token = await signTokens({username: username}, 'access')
     }
-    
     return {
         status: status,
         token: token,
-        reftoken: reftoken
+        refresh: refresh
     } 
 }
 
@@ -57,11 +70,7 @@ async function refreshAccess(refreshToken, callback){
 
     try {
         const dectoken = verify(serverRefreshToken.reftoken, process.env.REFTOKEN_SECRET)
-        token = sign(
-            {username: dectoken.username},
-            process.env.ACCTOKEN_SECRET,
-            {expiresIn: process.env.ACCTOKEN_LIFE}
-        )
+        token = await signTokens({username: dectoken.username}, 'access')
     } catch (e) {
         err = e
     }
@@ -78,11 +87,7 @@ async function newRefresh(username, passwd){
     const serverRefreshToken = await loginToRefresh(username, passwd)
 
     if(serverRefreshToken !== null){
-        refreshToken = sign(
-            payload= { username: username },
-            secretOrPrivateKey= process.env.REFTOKEN_SECRET,
-            options= { expiresIn: process.env.REFTOKEN_LIFE }
-        )
+        refreshToken = await signTokens({username: username}, 'refresh')
 
         await user.updateOne(
             filter= { username: username },
@@ -128,7 +133,7 @@ async function login(username, passwd, callback){
     try {
         const receivedTokens = await getTokens(matchedUser.username)
         token = receivedTokens.token
-        reftoken = receivedTokens.reftoken
+        reftoken = receivedTokens.refresh
     } catch (e) {err = e}
     
     callback(err, {
@@ -145,8 +150,8 @@ async function generateToken(username){
     let status = 'UNOTF'
 
     if(await user.findOne({username: username}) !== undefined){
-        token = sign(payload, process.env.ACCTOKEN_SECRET, {expiresIn: process.env.ACCTOKEN_LIFE})
-        reftoken = sign(payload, process.env.REFTOKEN_SECRET, {expiresIn: process.env.REFTOKEN_LIFE})
+        token = await signTokens(payload, 'access')
+        reftoken = await signTokens(payload, 'refresh')
 
         await user.updateOne({ username: username }, {
             $set: {reftoken: reftoken}
@@ -162,4 +167,4 @@ async function generateToken(username){
     }
 }
 
-module.exports = { authMiddleware, login, getTokens, getRefresh, generateToken, newRefresh, refreshAccess}
+module.exports = { authMiddleware, login, getTokens, getRefresh, generateToken, newRefresh, refreshAccess, webAuth}

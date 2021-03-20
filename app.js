@@ -28,7 +28,7 @@ app.route('/login')
         auth.login(req.body.username, req.body.passwd, (err, data) => {
             if(err) return res.render('login', {credential_not_valid: true})
             
-            res.cookie('access', data.token)
+            res.cookie('access', data.access)
             res.cookie('refresh', data.reftoken)
             res.redirect('/')
         })
@@ -65,8 +65,16 @@ app.get('/new/:new', (req, res, next) => {
     })
 })
 
-app.get('/editor', (req, res) => {
+app.get('/editor', auth.webAuth, (req, res) => {
     res.render('editor')
+})
+app.post('/editor', auth.webAuth, (req, res) => {
+    console.log('Creating')
+    notice.createPost(req.body.title, req.body.desc, req.body.id, req.username, req.body.content, function(err){
+        console.log(err)
+        if(err) return res.status(500).send('An error occured')
+        res.redirect(`/new/${req.body.id}`)
+    })
 })
 
 app.get('/api/new/:new', (req, res, next) => {
