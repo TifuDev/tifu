@@ -106,7 +106,33 @@ app.post('/api/login', (req, res) => {
 })
 
 app.get('/api/catalog', (req, res) => {
-    notice.seeCatolog((err, doc) => res.json(doc))
+    let filters = {},
+    limit = 0,
+    sort = {}
+    if(req.query){
+        if(req.query.q){
+            filters = {
+                title: {$regex: new RegExp(req.query.q)}
+            }
+        }
+        if(req.query.author){
+            filters = {
+                author: req.query.author
+            }
+        }
+        if(req.query.lim){
+            limit = Number(req.query.lim)
+        }
+        if(req.query.highest){
+            sort = {
+                downloads: -1
+            }
+        }
+    }
+    notice.seeCatalog((err, doc) => {
+        if(err) return res.status(500);
+        res.json(doc)
+    }, filters, sort, limit)
 })
 
 app.use(function (req, res){

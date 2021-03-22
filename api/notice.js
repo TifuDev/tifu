@@ -65,8 +65,8 @@ function writeNotice(name, content){
     return path
 }
 
-async function seeCatolog(callback){
-    db.news.find({}, callback)
+async function seeCatalog(callback, filters = {}, sort, limit){
+    db.news.find(filters, callback).sort(sort).limit(limit)
 }
 
-module.exports = {createPost, seeCatolog, getNotice}
+module.exports = {createPost, seeCatalog, getNotice}

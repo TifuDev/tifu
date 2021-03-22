@@ -1,4 +1,5 @@
 node_modules/*
 news/*
+public/sitemap.xml
 .vscode
 .env
