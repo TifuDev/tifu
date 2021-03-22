@@ -1,4 +1,13 @@
 const db = require('../utils/db')
+const { Sitemap } = require('../utils/sitemap')
+require('dotenv').config()
+
+class NoticeAlreadyExits extends Error{
+    constructor(msg){
+        super(msg)
+        this.name = "NoticeExists"
+    }
+}
 
 async function getNotice(id, callback){
     let notice = {data: {},content: ""}
@@ -16,18 +25,32 @@ async function getNotice(id, callback){
 }
 
 async function createPost(title, desc, id, author, content, callback){
-    let err;
-    try {
-        await db.news.create({
-            title: title,
-            desc: desc,
-            id: id,
-            author: author,
-            date: new Date(),
-            downloads: 0
-        })
+    let err,
+    sitemap = new Sitemap('public/sitemap.xml')
+    const current = new Date()
 
-        writeNotice(id, content)   
+    sitemap.read()
+    try {
+        if(await db.news.find({$or: [{id: id}, {title: title}]}).countDocuments() !== 0){
+            throw new NoticeAlreadyExits('Notice id or title already exists')
+        }else{
+            await db.news.create({
+                title: title,
+                desc: desc,
+                id: id,
+                author: author,
+                date: current,
+                downloads: 0
+            })
+
+            await db.user.updateOne({username: author}, {
+                $push: {posts: id}
+            })
+
+            writeNotice(id, content)
+            sitemap.addUrlToSet(`${process.env.HOST}/new/${id}`, current.toISOString())
+            sitemap.write()
+        }
     } catch (e) {
         err = e
     }

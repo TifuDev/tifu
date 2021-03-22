@@ -69,11 +69,15 @@ app.get('/editor', auth.webAuth, (req, res) => {
     res.render('editor')
 })
 app.post('/editor', auth.webAuth, (req, res) => {
-    console.log('Creating')
     notice.createPost(req.body.title, req.body.desc, req.body.id, req.username, req.body.content, function(err){
-        console.log(err)
-        if(err) return res.status(500).send('An error occured')
-        res.redirect(`/new/${req.body.id}`)
+        if(err){
+            if(err.name === 'NoticeExists'){
+                return res.status(409).send('Notice already exists')    
+            }else{
+                return res.status(500).send('An error occured')
+            }
+        }
+        res.send(`/new/${req.body.id}`)
     })
 })
 
