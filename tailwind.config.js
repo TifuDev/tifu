@@ -24,7 +24,8 @@ module.exports = {
         'mx-auto',
         'w-full',
         'flex-1',
-        'underline'
+        'underline',
+        /grid/
       ],
     }
   },

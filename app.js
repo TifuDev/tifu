@@ -17,7 +17,7 @@ app.set('views', 'public/views');
 app.use(express.static('public'));
 
 app.get('/', (req, res) => {
-    notice.seeCatolog((err, doc) => res.render('index', {data: doc}))
+    notice.seeCatalog((err, doc) => res.render('index', {data: doc}), {}, {downloads: -1})
 })
 
 app.route('/login')
@@ -55,7 +55,7 @@ app.get('/new/:new', (req, res, next) => {
     })
 
     notice.getNotice(req.params.new, (err, notice) => {
-        if(err) return next(err);
+        if(err) return next();
         res.render('notice', {
             title: notice.data.title,
             desc: notice.data.desc,

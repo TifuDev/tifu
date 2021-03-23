@@ -9,6 +9,13 @@ class NoticeAlreadyExits extends Error{
     }
 }
 
+class NoticeNotFound extends Error{
+    constructor(msg){
+        super(msg)
+        this.name = "NoticeNotFound"
+    }
+}
+
 async function getNotice(id, callback){
     let notice = {data: {},content: ""}
     let err
@@ -17,10 +24,12 @@ async function getNotice(id, callback){
         notice.data = await db.news.findOneAndUpdate({id: id}, {
             $inc: {downloads: 1}
         })
-        
+        if(!notice.data){
+            throw new NoticeNotFound('Notice id not found')
+        }
         notice.content = require('fs').readFileSync(`news/${id}.md`, 'utf-8')
     } catch(e) {err = e};
-
+    console.log(err.name)
     callback(err, notice)
 }
 
