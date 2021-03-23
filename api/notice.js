@@ -29,7 +29,6 @@ async function getNotice(id, callback){
         }
         notice.content = require('fs').readFileSync(`news/${id}.md`, 'utf-8')
     } catch(e) {err = e};
-    console.log(err.name)
     callback(err, notice)
 }
 
