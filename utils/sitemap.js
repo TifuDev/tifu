@@ -28,7 +28,15 @@ class Sitemap{
 
         this.obj.urlset = urlset
     }
+    removeUrlFromSet(loc){
+        for (let i = 0; i < this.obj.urlset.url.length; i++) {
+            let elem = this.obj.urlset.url[i];
+            if(elem.loc[0] === loc){
+                this.obj.urlset.url.splice(i, 1)
+            };
 
+        }
+    }
     write(){
         fs.writeFileSync(this.path, builder.buildObject(this.obj))
     }

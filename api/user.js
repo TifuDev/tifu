@@ -2,25 +2,39 @@ const db = require('../utils/db')
 const { hashString } = require('../utils/hash')
 const { generateToken } = require('./security')
 
-async function createUser(username, email, passwd){
-    let status = "SUCC"
-    
+class UsernameAlreadyUsed extends Error{
+    constructor(msg){
+        super(msg)
+    }
+}
+
+class EmailAlreadyUsed extends Error{
+    constructor(msg){
+        super(msg)
+    }
+}
+
+async function createUser(username, email, passwd, callback){
     const users = await db.user.findOne({
         $or: [
             {username: username},
             {email: email}
         ]
     })
-
-    if (users !== null){
-        status = (user.username === username) ? 'UALR': 'EALR'
-    }
     
-    let token;
-    let reftoken;
+    let token,
+    reftoken,
+    err;
 
-    if (status === 'SUCC'){
-        await db.user.create({
+    try {
+        if(users !== null){
+            if(users.username === username){
+                throw new UsernameAlreadyUsed('Username already used by another account')
+            }
+            throw new EmailAlreadyUsed('Email already used by another account')
+        }
+
+        db.user.create({
             username: username,
             email: email,
             passwd: hashString(passwd),
@@ -30,17 +44,15 @@ async function createUser(username, email, passwd){
             posts: []
         })
 
-        generateToken(username).then(data => {
+        await generateToken(username).then(data => {
             token = data.token
             reftoken = data.reftoken
         })
+    } catch (e) {
+        err = e
     }
 
-    return {
-        status: status,
-        token: token,
-        reftoken: reftoken
-    }
+    callback(err, {token: token, reftoken: reftoken})
 }
 
 module.exports = { createUser }

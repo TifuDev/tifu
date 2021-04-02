@@ -17,7 +17,7 @@ app.set('views', 'public/views');
 app.use(express.static('public'));
 
 app.get('/', (req, res) => {
-    notice.seeCatalog((err, doc) => res.render('index', {data: doc}), {}, {downloads: -1})
+    notice.seeCatalog((err, doc) => res.render('index', {data: doc}), {}, {downloads: -1, date: -1})
 })
 
 app.route('/login')
@@ -68,6 +68,7 @@ app.get('/new/:new', (req, res, next) => {
 app.get('/editor', auth.webAuth, (req, res) => {
     res.render('editor')
 })
+
 app.post('/editor', auth.webAuth, (req, res) => {
     notice.createPost(req.body.title, req.body.desc, req.body.id, req.username, req.body.content, function(err){
         if(err){

@@ -13,7 +13,7 @@ var news = mongoose.model('new', mongoose.Schema({
         date: Date,
         downloads: Number
     }, {
-        versionKey: false,
+        versionKey: false
     }))
 
 var user = mongoose.model('user', mongoose.Schema({
@@ -30,7 +30,8 @@ var user = mongoose.model('user', mongoose.Schema({
 
 mongoose.connect(uri, {
     useNewUrlParser: true,
-    useUnifiedTopology: true
+    useUnifiedTopology: true,
+    useFindAndModify: false
 })
 
 module.exports = { mongoose, news , user}
