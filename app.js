@@ -106,6 +106,20 @@ app.post('/api/login', (req, res) => {
     })
 })
 
+app.get('/api/new/:id/remove', auth.authMiddleware, (req, res) => {
+    notice.removeNotice(req.params.id, req.username, err => {
+        if(err){
+            if(err.name === 'NoticeNotFound'){
+                return res.status(404).send('Notice not found')
+            } else{
+                return res.status(500).send('An error occured. ' + err)
+            }
+        }
+
+        res.send('OKAY')
+    })
+})
+
 app.get('/api/catalog', (req, res) => {
     let filters = {},
     limit = 0,

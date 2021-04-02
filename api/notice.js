@@ -73,8 +73,30 @@ function writeNotice(name, content){
     return path
 }
 
+async function removeNotice(id, username, callback){
+    let err,
+    sitemap = new Sitemap('public/sitemap.xml');
+
+    try {
+        sitemap.read()
+        sitemap.removeUrlFromSet(`https://${process.env.HOST}/new/${id}`)
+        if (await db.news.findOne({id: id}) === null) throw new NoticeNotFound('Notice not found');
+        await db.news.deleteOne({id: id})
+        await db.user.updateOne({username: username}, {
+            $pull: {posts: id}
+        })
+
+        require('fs').unlinkSync(`news/${id}.md`)
+        sitemap.write()
+    } catch (e) {
+        err = e
+    }
+
+    callback(err)
+}
+
 async function seeCatalog(callback, filters = {}, sort, limit){
     db.news.find(filters, callback).sort(sort).limit(limit)
 }
 
-module.exports = {createPost, seeCatalog, getNotice}
+module.exports = {createPost, seeCatalog, getNotice, removeNotice}

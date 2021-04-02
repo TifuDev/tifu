@@ -16,12 +16,12 @@ class Sitemap{
         let urlset = this.obj.urlset
         try {
             urlset.url.push({
-                loc: loc,
+                loc: 'https://' + loc,
                 lastmod: lastmod
             })
         } catch {
             urlset.url = {
-                loc: loc,
+                loc: 'https://' + loc,
                 lastmod: lastmod
             }
         }
@@ -29,12 +29,13 @@ class Sitemap{
         this.obj.urlset = urlset
     }
     removeUrlFromSet(loc){
+        let urlset = this.obj.urlset
+        if(urlset.url === undefined) return new Error('No URLs to remove!');
         for (let i = 0; i < this.obj.urlset.url.length; i++) {
-            let elem = this.obj.urlset.url[i];
-            if(elem.loc[0] === loc){
-                this.obj.urlset.url.splice(i, 1)
+            if(urlset.url[i].loc[0] === loc){
+                urlset.url.splice(i, 1)
+                break
             };
-
         }
     }
     write(){
