@@ -1,0 +1,13 @@
+extends layout.pug
+block sources 
+    script(src="https://cdn.jsdelivr.net/npm/showdown@1.9.0/dist/showdown.min.js") 
+    style.
+        .empty::before{
+            color: #757575;
+            content: attr(data-placeholder);
+            padding: 4px;
+        }
+block content
+    h1(contenteditable, data-placeholder="Meu incrível título").empty= title
+    p(contenteditable, data-placeholder="Minha incrivel descrição").empty#desc= desc
+    div(contenteditable, data-placeholder="Conteúdo").empty#content= content

@@ -96,6 +96,17 @@ app.get('/api/new/:id', (req, res, next) => {
     });
 });
 
+app.get('/new/:id/modify', auth.webAuth, (req, res) => {
+    new notice.Notice(req.params.id).getNotice((err, notice) => {
+        if(err) return res.status(404).send('Notice Not Found');
+        res.render('modify', {
+            title: notice.data.title,
+            desc: notice.data.desc,
+            content: notice.content
+        });
+    });
+});
+
 app.post('/api/get/access', (req, res) => {
     const authHeader = req.headers.authorization;
     if (authHeader !== undefined) {

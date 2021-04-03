@@ -17,7 +17,11 @@ async function loginToRefresh(username, passwd) {
 }
 
 function authMiddleware(req, res, next) {
-    const token = req.cookies.access ? req.cookies.access : req.headers.authorization.split(' ')[1];
+    if(!req.headers.authorization){
+        return res.status(401).send("No token provided");
+    }
+    
+    const token = req.headers.authorization.split(' ')[1];
     if (!token) return res.status(401).send("No token provided");
 
     verify(token, process.env.ACCTOKEN_SECRET, (err, dec) => {
