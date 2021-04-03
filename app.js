@@ -43,28 +43,26 @@ app.route('/login')
         });
     });
 
-app.get('/new/:new', (req, res, next) => {
+app.get('/new/:id', (req, res, next) => {
     const classMap = {
             h1: 'my-2 text-2xl underline font-semibold',
             p: 'my-2 font-light',
             strong: 'font-light',
             li: 'list-disc'
         },
-
         bindings = Object.keys(classMap)
         .map(key => ({
             type: 'output',
             regex: new RegExp(`<${key}(.*)>`, 'g'),
             replace: `<${key} class="${classMap[key]}" $1>`
         })),
-
         converter = new showdown.Converter({
             noHeaderId: true,
             extensions: [bindings]
         });
-
-    notice.getNotice(req.params.new, (err, notice) => {
-        if (err) return next();
+ 
+    notice.getNotice(req.params.id, (err, notice) => {
+	if (err) return next();
         res.render('notice', {
             title: notice.data.title,
             desc: notice.data.desc,
@@ -91,8 +89,8 @@ app.post('/editor', auth.webAuth, (req, res) => {
     });
 });
 
-app.get('/api/new/:new', (req, res, next) => {
-    notice.getNotice(req.params.new, (err, notice) => {
+app.get('/api/new/:id', (req, res, next) => {
+    notice.getNotice(req.params.id, (err, notice) => {
         if (err) return next();
         res.json(notice);
     });
