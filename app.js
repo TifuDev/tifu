@@ -61,7 +61,7 @@ app.get('/new/:id', (req, res, next) => {
             extensions: [bindings]
         });
  
-    notice.getNotice(req.params.id, (err, notice) => {
+    notice.get(req.params.id, (err, notice) => {
 	if (err) return next();
         res.render('notice', {
             title: notice.data.title,
@@ -90,14 +90,14 @@ app.post('/editor', auth.webAuth, (req, res) => {
 });
 
 app.get('/api/new/:id', (req, res, next) => {
-    notice.getNotice(req.params.id, (err, notice) => {
+    notice.get(req.params.id, (err, notice) => {
         if (err) return next();
         res.json(notice);
     });
 });
 
 app.get('/new/:id/modify', auth.webAuth, (req, res) => {
-    new notice.Notice(req.params.id).getNotice((err, notice) => {
+    new notice.Notice(req.params.id).get((err, notice) => {
         if(err) return res.status(404).send('Notice Not Found');
         res.render('modify', {
             title: notice.data.title,
