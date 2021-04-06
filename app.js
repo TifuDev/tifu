@@ -77,7 +77,8 @@ app.get('/editor', auth.webAuth, (req, res) => {
 });
 
 app.post('/editor', auth.webAuth, (req, res) => {
-    notice.createPost(req.body.title, req.body.desc, req.body.id, req.username, req.body.content, function (err) {
+    const body = req.body;
+    notice.createPost(body.title, body.desc, body.id, req.username, body.content, function (err) {
         if (err) {
             if (err.name === 'NoticeExists') {
                 return res.status(409).send('Notice already exists');
@@ -96,7 +97,7 @@ app.get('/api/new/:id', (req, res, next) => {
     });
 });
 
-app.get('/new/:id/modify', auth.webAuth, (req, res) => {
+app.get('/new/:id/modify', auth.noticeOwner, (req, res) => {
     new notice.Notice(req.params.id).get((err, notice) => {
         if(err) return res.status(404).send('Notice Not Found');
         res.render('modify', {

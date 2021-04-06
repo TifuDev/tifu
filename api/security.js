@@ -1,12 +1,8 @@
-const {
-    verify
-} = require('jsonwebtoken'), {
-    user
-} = require('../utils/db'), {
-    hashString
-} = require('../utils/hash'), {
-    signTokens
-} = require('../utils/signTokens');
+const {verify} = require('jsonwebtoken'), 
+    {user} = require('../utils/db'), 
+    {hashString} = require('../utils/hash'), 
+    {signTokens} = require('../utils/signTokens'),
+    {User} = require('./user');
 require('dotenv').config();
 
 async function loginToRefresh(username, passwd) {
@@ -51,6 +47,30 @@ function webAuth(req, res, next) {
             next();
         }
     });
+}
+
+async function noticeOwner(req, res, next){
+    const access = req.cookies.access,
+        refresh = req.cookies.refresh;
+
+    verify(access, process.env.ACCTOKEN_SECRET, (err, dec) => {
+        if (err) {
+            if (refresh) {
+                refreshAccess(refresh, (err, data) => {
+                    if (err) return res.status(403).send('Failed to authenticate');
+
+                    res.cookie('access', data.token);
+                    req.username = verify(refresh, process.env.REFTOKEN_SECRET).username;
+                });
+            } else return res.status(401).send('No refresh provided');
+        } else req.username = dec.username;
+    });
+    const account = new User(req.username);
+    await account.getData();
+    if(!account.noticeOwner(req.params.id)){
+        return res.status(403).send('You are not the owner of notice');
+    }
+    next();
 }
 
 async function getTokens(username) {
@@ -210,5 +230,6 @@ module.exports = {
     generateToken,
     newRefresh,
     refreshAccess,
-    webAuth
+    webAuth,
+    noticeOwner
 };

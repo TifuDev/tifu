@@ -1,4 +1,4 @@
-const db = require('../utils/db'),
+const {user} = require('../utils/db'),
     {
         hashString
     } = require('../utils/hash'),
@@ -20,7 +20,7 @@ class EmailAlreadyUsed extends Error {
     }
 }
 
-class UserNotFound{
+class UserNotFound extends Error{
     constructor(msg){
         super(msg);
         this.name = "UserNotFound";
@@ -28,25 +28,29 @@ class UserNotFound{
 }
 class User{
     constructor(username){
-        super(username);
+        this.username = username;
     }
-    async getData(callback){
-        let err;
-        const req = await db.user.findOne({username: this.username});
+    async getData(){
+        const req = await user.findOne({username: this.username});
         try {
             if(req === null) throw new UserNotFound(`The user ${this.username} can not be found!`);
             
             this.email = req.email;
             this.posts = req.posts;
             this.details = req.details;
+            this.refresh = req.reftoken;
+            return {
+                email: req.email,
+                posts: req.posts,
+                details: req.details,
+                refresh: req.reftoken
+            };
         } catch (e) {
-            err = e;
+            return e;
         }
-        
-        callback(err);
     }
     async create(email, password, callback, details = {bio: '', profile_pic: ''}){
-        const users = await db.user.findOne({
+        const users = await user.findOne({
             $or: [{
                     username: username
                 },
@@ -68,7 +72,7 @@ class User{
                 throw new EmailAlreadyUsed('Email already used by another account');
             }
     
-            db.user.create({
+            user.create({
                 username: username,
                 email: email,
                 passwd: hashString(password),
@@ -95,7 +99,7 @@ class User{
     async changeDetails(details, callback){
         let err;
         try {
-            db.user.updateOne({username: username}, {
+            user.updateOne({username: username}, {
                 $set: {details: details}
             });
             this.details = details;
@@ -108,7 +112,7 @@ class User{
     async changePass(password, callback){
         let err;
         try {
-            db.user.updateOne({username: username}, {
+            user.updateOne({username: username}, {
                 $set: {passwd: hashString(password)}
             });
         } catch (e) {
@@ -120,7 +124,7 @@ class User{
     async changeEmail(email, callback){
         let err;
         try {
-            db.user.updateOne({username: username}, {
+            user.updateOne({username: username}, {
                 $set: {email: email}
             });
             this.email = email;
@@ -136,7 +140,7 @@ class User{
 }
 
 async function createUser(username, email, passwd, callback) {
-    const users = await db.user.findOne({
+    const users = await user.findOne({
         $or: [{
                 username: username
             },
@@ -158,7 +162,7 @@ async function createUser(username, email, passwd, callback) {
             throw new EmailAlreadyUsed('Email already used by another account');
         }
 
-        db.user.create({
+        user.create({
             username: username,
             email: email,
             passwd: hashString(passwd),
@@ -183,5 +187,5 @@ async function createUser(username, email, passwd, callback) {
 }
 
 module.exports = {
-    createUser
+    User
 };
