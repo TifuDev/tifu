@@ -60,9 +60,8 @@ app.get('/new/:id', (req, res, next) => {
             noHeaderId: true,
             extensions: [bindings]
         });
- 
-    notice.get(req.params.id, (err, notice) => {
-	if (err) return next();
+    new notice.Notice(req.params.id).get((err, notice) => {
+        if (err) return next();
         res.render('notice', {
             title: notice.data.title,
             desc: notice.data.desc,
@@ -91,7 +90,7 @@ app.post('/editor', auth.webAuth, (req, res) => {
 });
 
 app.get('/api/new/:id', (req, res, next) => {
-    notice.get(req.params.id, (err, notice) => {
+    new notice.Notice(req.params.id).get((err, notice) => {
         if (err) return next();
         res.json(notice);
     });
