@@ -7,10 +7,10 @@ html(lang='pt')
         
         meta(charset="utf-8")
         meta(name="viewport", content="width=device-width, initial-scale=1.0")
-        meta(name="description", content=desc+' - Tifu' || 'Um grande site de noticias')
+        meta(name="description", content=desc || 'Um grande site de noticias')
         block sources
     body
-        nav.bg-blue-100.p-2.rounded-md
+        nav.bg-blue-100.p-2.rounded-md.mx-auto
             .flex.justify-between
                 img(src="/svg/logo.svg", alt="Logo", width="32px", height="32px")
                 input#search-box(type="text", name="")
