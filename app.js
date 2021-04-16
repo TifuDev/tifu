@@ -124,18 +124,22 @@ app.post('/api/login', (req, res) => {
     });
 });
 
-app.get('/api/new/:id/remove', auth.authMiddleware, (req, res) => {
-    notice.removeNotice(req.params.id, req.username, err => {
-        if (err) {
-            if (err.name === 'NoticeNotFound') {
-                return res.status(404).send('Notice not found');
-            } else {
-                return res.status(500).send('An error occured. ' + err);
-            }
-        }
-
-        res.send('OKAY');
+app.get('/api/new/:id/remove', auth.noticeOwner, (req, res) => {
+    new notice.Notice(req.params.id).remove(err => {
+        if(err) return res.status(500).send('An error occurred! ' + err);
+        res.send('REMOVED');
     });
+    // notice.removeNotice(req.params.id, req.username, err => {
+    //     if (err) {
+    //         if (err.name === 'NoticeNotFound') {
+    //             return res.status(404).send('Notice not found');
+    //         } else {
+    //             return res.status(500).send('An error occured. ' + err);
+    //         }
+    //     }
+
+    //     res.send('OKAY');
+    // });
 });
 
 app.get('/api/catalog', (req, res) => {
@@ -170,17 +174,12 @@ app.get('/api/catalog', (req, res) => {
     }, filters, sort, limit);
 });
 
-app.get('/api/new/:id/modify', auth.authMiddleware, (req, res) => {
+app.get('/api/new/:id/modify', auth.noticeOwner, (req, res) => {
     const Notice = new notice.Notice(req.params.id);
-    if(req.body.title){
-        Notice.modifyNoticeTitle(req.body.title);
-    }
-    if(req.body.desc){
-        Notice.modifyNoticeDesc(req.body.desc);
-    }
-    if(req.body.content){
-        Notice.modifyNoticeContent(req.body.content);
-    }
+    
+    if(req.body.title) Notice.modifyNoticeTitle(req.body.title);
+    if(req.body.desc) Notice.modifyNoticeDesc(req.body.desc);
+    if(req.body.content) Notice.modifyNoticeContent(req.body.content);
 
     res.send('OKAY');
 });

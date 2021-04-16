@@ -40,7 +40,6 @@ class Notice {
                 content: ""
             },
             err;
-
         try {
             notice.data = await db.news.findOneAndUpdate({
                 id: this.id
@@ -59,6 +58,7 @@ class Notice {
         }
 
         this.notice = notice;
+        if(callback === undefined) return notice;
         callback(err, notice);
     }
     async createPost(title, desc, author, content, callback) {
@@ -108,7 +108,7 @@ class Notice {
 
         callback(err);
     }
-    async removeNotice() {
+    async remove(callback) {
         let err,
             sitemap = new Sitemap('public/sitemap.xml');
 
@@ -134,7 +134,6 @@ class Notice {
         } catch (e) {
             err = e;
         }
-
         callback(err);
     }
     modifyNoticeContent(content) {

@@ -1,10 +1,5 @@
 const {user} = require('../utils/db'),
-    {
-        hashString
-    } = require('../utils/hash'),
-    {
-        generateToken
-    } = require('./security');
+    {hashString} = require('../utils/hash');
 
 class UsernameAlreadyUsed extends Error {
     constructor(msg) {
@@ -30,8 +25,15 @@ class User{
     constructor(username){
         this.username = username;
     }
-    async getData(){
+    async get(callback){
+        let err;
         const req = await user.findOne({username: this.username});
+        const data = {
+            email: undefined,
+            posts: undefined,
+            details: undefined,
+            refresh: undefined
+        };
         try {
             if(req === null) throw new UserNotFound(`The user ${this.username} can not be found!`);
             
@@ -39,20 +41,23 @@ class User{
             this.posts = req.posts;
             this.details = req.details;
             this.refresh = req.reftoken;
-            return {
-                email: req.email,
-                posts: req.posts,
-                details: req.details,
-                refresh: req.reftoken
-            };
+
+            data.email = req.email;
+            data.posts = req.posts;
+            data.details = req.details;
+            data.refresh = req.refresh;
+
         } catch (e) {
-            return e;
+            err = e;
         }
+
+        if(callback === undefined) return data;
+        callback(err, data);
     }
     async create(email, password, callback, details = {bio: '', profile_pic: ''}){
         const users = await user.findOne({
             $or: [{
-                    username: username
+                    username: this.username
                 },
                 {
                     email: email
@@ -60,9 +65,7 @@ class User{
             ]
         });
 
-        let err,
-            access,
-            refresh;
+        let err;
 
         try {
             if (users !== null) {
@@ -73,29 +76,23 @@ class User{
             }
     
             user.create({
-                username: username,
+                username: this.username,
                 email: email,
                 passwd: hashString(password),
                 details: details,
                 posts: []
             });
     
-            await generateToken(username).then(data => {
-                access = data.token;
-                refresh = data.reftoken;
-            });
         } catch (e) {
             err = e;
         }
         
         this.email = email;
         this.details = details;
-        this.posts = posts;
-        callback(err, {
-            token: access,
-            reftoken: refresh
-        });
+        this.posts = [];
+        callback(err);
     }
+
     async changeDetails(details, callback){
         let err;
         try {
@@ -134,56 +131,9 @@ class User{
 
         callback(err);
     }
-    noticeOwner(id){
-        return (this.posts.indexOf(id) === -1) ? false : true;
+    noticeOwner(path){
+        return (this.posts.indexOf(path) === -1) ? false : true;
     }
-}
-
-async function createUser(username, email, passwd, callback) {
-    const users = await user.findOne({
-        $or: [{
-                username: username
-            },
-            {
-                email: email
-            }
-        ]
-    });
-
-    let token,
-        reftoken,
-        err;
-
-    try {
-        if (users !== null) {
-            if (users.username === username) {
-                throw new UsernameAlreadyUsed('Username already used by another account');
-            }
-            throw new EmailAlreadyUsed('Email already used by another account');
-        }
-
-        user.create({
-            username: username,
-            email: email,
-            passwd: hashString(passwd),
-            details: {
-                bio: ""
-            },
-            posts: []
-        });
-
-        await generateToken(username).then(data => {
-            token = data.token;
-            reftoken = data.reftoken;
-        });
-    } catch (e) {
-        err = e;
-    }
-
-    callback(err, {
-        token: token,
-        reftoken: reftoken
-    });
 }
 
 module.exports = {
