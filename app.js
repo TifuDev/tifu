@@ -4,6 +4,7 @@ const express = require('express'),
     cookieParser = require('cookie-parser'),
     showdown = require('showdown'),
     auth = require('./api/security'),
+    sec = require('./api/securityv2'),
     port = 3000;
 
 var app = express();
@@ -19,12 +20,13 @@ app.set('views', 'public/views');
 app.use(express.static('public'));
 
 app.get('/', (req, res) => {
-    notice.seeCatalog((err, doc) => res.render('index', {
-        data: doc
-    }), {}, {
-        downloads: -1,
-        date: -1
-    });
+    // notice.seeCatalog((err, doc) => res.render('index', {
+    //     data: doc
+    // }), {}, {
+    //     downloads: -1,
+    //     date: -1
+    // });
+    res.render('index');
 });
 
 app.route('/login')
@@ -38,7 +40,6 @@ app.route('/login')
             });
 
             res.cookie('access', data.access);
-            res.cookie('refresh', data.reftoken);
             res.redirect('/');
         });
     });
@@ -71,18 +72,18 @@ app.get('/new/:id', (req, res, next) => {
     });
 });
 
-app.get('/editor', auth.webAuth, (req, res) => {
+app.get('/editor', sec.cookieMiddleware, (req, res) => {
     res.render('editor');
 });
 
-app.post('/editor', auth.webAuth, (req, res) => {
+app.post('/editor', sec.cookieMiddleware, (req, res) => {
     const body = req.body;
-    notice.createPost(body.title, body.desc, body.id, req.username, body.content, function (err) {
+    new notice.Notice(body.id).createPost(body.title, body.desc, req.user.username, body.content, function (err) {
         if (err) {
             if (err.name === 'NoticeExists') {
                 return res.status(409).send('Notice already exists');
             } else {
-                return res.status(500).send('An error occured');
+                return res.status(500).send('An error occured!' + err);
             }
         }
         res.send(`/new/${req.body.id}`);
@@ -96,8 +97,8 @@ app.get('/api/new/:id', (req, res, next) => {
     });
 });
 
-app.get('/new/:id/modify', auth.noticeOwner, (req, res) => {
-    new notice.Notice(req.params.id).get((err, notice) => {
+app.get('/new/:path/modify', sec.noticeOwnerCookie, (req, res) => {
+    req.notice.get((err, notice) => {
         if(err) return res.status(404).send('Notice Not Found');
         res.render('modify', {
             title: notice.data.title,
@@ -107,16 +108,6 @@ app.get('/new/:id/modify', auth.noticeOwner, (req, res) => {
     });
 });
 
-app.post('/api/get/access', (req, res) => {
-    const authHeader = req.headers.authorization;
-    if (authHeader !== undefined) {
-        auth.refreshAccess(authHeader.split(' ')[1], (err, data) => {
-            if (err) return res.status(403).send('Token is not valid');
-            res.json(data);
-        });
-    } else res.status(401);
-});
-
 app.post('/api/login', (req, res) => {
     auth.login(req.body.username, req.body.passwd, (err, data) => {
         if (err) return res.status(401).send('Credentials not valid');
@@ -124,22 +115,11 @@ app.post('/api/login', (req, res) => {
     });
 });
 
-app.get('/api/new/:id/remove', auth.noticeOwner, (req, res) => {
-    new notice.Notice(req.params.id).remove(err => {
+app.get('/api/new/:path/remove', sec.noticeOwner, (req, res) => {
+    req.notice.remove(err => {
         if(err) return res.status(500).send('An error occurred! ' + err);
         res.send('REMOVED');
     });
-    // notice.removeNotice(req.params.id, req.username, err => {
-    //     if (err) {
-    //         if (err.name === 'NoticeNotFound') {
-    //             return res.status(404).send('Notice not found');
-    //         } else {
-    //             return res.status(500).send('An error occured. ' + err);
-    //         }
-    //     }
-
-    //     res.send('OKAY');
-    // });
 });
 
 app.get('/api/catalog', (req, res) => {
@@ -174,12 +154,10 @@ app.get('/api/catalog', (req, res) => {
     }, filters, sort, limit);
 });
 
-app.get('/api/new/:id/modify', auth.noticeOwner, (req, res) => {
-    const Notice = new notice.Notice(req.params.id);
-    
-    if(req.body.title) Notice.modifyNoticeTitle(req.body.title);
-    if(req.body.desc) Notice.modifyNoticeDesc(req.body.desc);
-    if(req.body.content) Notice.modifyNoticeContent(req.body.content);
+app.get('/api/new/:path/modify', sec.noticeOwner, (req, res) => {    
+    if(req.body.title) req.notice.modifyNoticeTitle(req.body.title);
+    if(req.body.desc) req.notice.modifyNoticeDesc(req.body.desc);
+    if(req.body.content) req.notice.modifyNoticeContent(req.body.content);
 
     res.send('OKAY');
 });

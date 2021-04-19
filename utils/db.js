@@ -4,13 +4,14 @@ const mongoose = require('mongoose');
 const uri =
     `mongodb://${process.env.DB_HOST}:${process.env.DB_PORT}/tifu`;
 var news = mongoose.model('new', mongoose.Schema({
+    _id: Number,
     title: String,
     desc: String,
     path: String,
-    id: String,
     author: String,
     date: Date,
-    downloads: Number
+    downloads: Number,
+    collectionId: Number
 }, {
     versionKey: false
 }));
@@ -19,8 +20,8 @@ var user = mongoose.model('user', mongoose.Schema({
     username: String,
     email: String,
     details: Object,
-    posts: Array,
-    reftoken: String,
+    noticeCollection: Array,
+    // reftoken: String,
     passwd: String
 }, {
     versionKey: false

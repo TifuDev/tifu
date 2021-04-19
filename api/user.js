@@ -28,12 +28,7 @@ class User{
     async get(callback){
         let err;
         const req = await user.findOne({username: this.username});
-        const data = {
-            email: undefined,
-            posts: undefined,
-            details: undefined,
-            refresh: undefined
-        };
+        const data = {};
         try {
             if(req === null) throw new UserNotFound(`The user ${this.username} can not be found!`);
             
@@ -45,7 +40,7 @@ class User{
             data.email = req.email;
             data.posts = req.posts;
             data.details = req.details;
-            data.refresh = req.refresh;
+            data.refresh = req.reftoken;
 
         } catch (e) {
             err = e;
@@ -80,7 +75,7 @@ class User{
                 email: email,
                 passwd: hashString(password),
                 details: details,
-                posts: []
+                noticeCollection: []
             });
     
         } catch (e) {

@@ -23,10 +23,10 @@ class Forbidden extends Error {
     }
 }
 class Notice {
-    constructor(id) {
-        this.id = id;
-        this.uri = `${process.env.HOST}/new/${id}`;
-        this.path = `news/${id}.md`;
+    constructor(path) {
+        this.path = path;
+        this.uri = `${process.env.HOST}/new/${path}`;
+        this.file_path = `news/${path}.md`;
 
         this.notice = {
             data: {},
@@ -42,7 +42,7 @@ class Notice {
             err;
         try {
             notice.data = await db.news.findOneAndUpdate({
-                id: this.id
+                path: this.path
             }, {
                 $inc: {
                     downloads: 1
@@ -52,7 +52,7 @@ class Notice {
             if (!notice.data) {
                 throw new NoticeNotFound('Notice id not found');
             }
-            notice.content = require('fs').readFileSync(this.path, 'utf-8');
+            notice.content = require('fs').readFileSync(this.file_path, 'utf-8');
         } catch (e) {
             err = e;
         }
@@ -64,37 +64,45 @@ class Notice {
     async createPost(title, desc, author, content, callback) {
         let err,
             sitemap = new Sitemap('public/sitemap.xml');
-        const current = new Date();
-
+        const current = new Date(),
+            highestId = await db.news.findOne({}, '_id').sort({_id: -1}),
+            authorData = await db.user.findOne({username: author}, 'noticeCollection');
         sitemap.read();
         try {
             if (await db.news.find({
                     $or: [{
-                        id: this.id
+                        path: this.path
                     }, {
                         title: title
                     }]
                 }).countDocuments() !== 0) {
                 throw new NoticeAlreadyExits('Notice id or title already exists');
             } else {
+                let id = 0,
+                    collectionId = 0;
+                
+                if(authorData.noticeCollection.length !== 0) collectionId = authorData.noticeCollection.length;
+                if(highestId !== null) id = highestId._id +1;
                 await db.news.create({
+                    _id: id,
                     title: title,
                     desc: desc,
-                    id: this.id,
+                    path: this.path,
                     author: author,
                     date: current,
-                    downloads: 0
+                    downloads: 0,
+                    collectionId: collectionId
                 });
 
                 await db.user.updateOne({
                     username: author
                 }, {
                     $push: {
-                        posts: this.id
+                        noticeCollection: collectionId
                     }
                 });
 
-                writeNotice(this.id, content);
+                writeNotice(this.path, content);
                 sitemap.addUrlToSet(this.uri, current.toISOString());
                 sitemap.write();
             }
@@ -116,20 +124,20 @@ class Notice {
             sitemap.read();
             sitemap.removeUrlFromSet(`https://${this.uri}`);
             if (await db.news.findOne({
-                    id: this.id
+                    path: this.path
                 }) === null) throw new NoticeNotFound('Notice not found');
             await db.news.deleteOne({
-                id: id
+                path: this.path
             });
             await db.user.updateOne({
                 username: this.notice.data.author
             }, {
                 $pull: {
-                    posts: this.id
+                    posts: this.path
                 }
             });
 
-            require('fs').unlinkSync(this.path);
+            require('fs').unlinkSync(this.file_path);
             sitemap.write();
         } catch (e) {
             err = e;
@@ -137,12 +145,12 @@ class Notice {
         callback(err);
     }
     modifyNoticeContent(content) {
-        writeNotice(this.id, content);
+        writeNotice(this.path, content);
         this.notice.content = content;
     }
     async modifyNoticeTitle(title) {
         await db.news.updateOne({
-            id: this.id
+            path: this.path
         }, {
             $set: {
                 title: title
@@ -152,7 +160,7 @@ class Notice {
     }
     async modifyNoticeDesc(desc) {
         await db.news.updateOne({
-            id: this.id
+            path: this.path
         }, {
             $set: {
                 desc: desc
