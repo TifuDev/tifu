@@ -5,6 +5,8 @@ const express = require('express'),
     showdown = require('showdown'),
     auth = require('./api/security'),
     sec = require('./api/securityv2'),
+    upload = require('./api/upload'),
+    path = require('path'),
     port = 3000;
 
 var app = express();
@@ -160,6 +162,15 @@ app.get('/api/new/:path/modify', sec.noticeOwner, (req, res) => {
     if(req.body.content) req.notice.modifyNoticeContent(req.body.content);
 
     res.send('OKAY');
+});
+
+app.get('/api/upload/image', upload.handleBinary, (req, res) => {
+    const type = 
+        /image\/(.*)/.exec(req.headers['content-type'])[1];
+    if(req.headers['content-length'] / 1000 > 20) return res.send('Image too larger');
+    if(['jpeg', 'jpg'].indexOf(type) === -1) return res.send('Image extension not allowed');
+    upload.storeBinary(req.rawBody, 'jpg', path.join('public', 'uploads', 'images'));
+    res.send('Success');
 });
 
 app.use(function (req, res) {

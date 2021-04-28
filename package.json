@@ -1,6 +1,6 @@
 {
   "name": "tifu",
-  "version": "1.0.8",
+  "version": "1.1.0",
   "description": "",
   "main": "app.js",
   "scripts": {
@@ -17,12 +17,15 @@
     "jshint": "^2.12.0",
     "jsonwebtoken": "^8.5.1",
     "pug": "^3.0.2",
-    "showdown": "^1.9.1"
+    "showdown": "^1.9.1",
+    "uuid": "^8.3.2"
   },
   "devDependencies": {
     "autoprefixer": "^10.2.4",
+    "lz4": "^0.6.5",
     "mongoose": "^5.12.3",
     "postcss": "^8.2.6",
+    "request": "^2.88.2",
     "tailwindcss": "^2.0.3",
     "xml2js": "^0.4.23"
   }
