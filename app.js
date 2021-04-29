@@ -120,7 +120,9 @@ app.post('/api/login', (req, res) => {
 app.get('/api/new/:path/remove', sec.noticeOwner, (req, res) => {
     req.notice.remove(err => {
         if(err) return res.status(500).send('An error occurred! ' + err);
-        res.send('REMOVED');
+        res.json({
+            message: 'Success'
+        });
     });
 });
 
@@ -161,16 +163,25 @@ app.get('/api/new/:path/modify', sec.noticeOwner, (req, res) => {
     if(req.body.desc) req.notice.modifyNoticeDesc(req.body.desc);
     if(req.body.content) req.notice.modifyNoticeContent(req.body.content);
 
-    res.send('OKAY');
+    res.json({
+        message: 'Success'
+    });
 });
 
 app.get('/api/upload/image', upload.handleBinary, (req, res) => {
     const type = 
         /image\/(.*)/.exec(req.headers['content-type'])[1];
-    if(req.headers['content-length'] / 1000 > 20) return res.send('Image too larger');
-    if(['jpeg', 'jpg'].indexOf(type) === -1) return res.send('Image extension not allowed');
-    upload.storeBinary(req.rawBody, 'jpg', path.join('public', 'uploads', 'images'));
-    res.send('Success');
+    if(['jpeg', 'jpg'].indexOf(type) === -1) 
+        return res.send('File extension not allowed');
+    upload.storeBinary(req.rawBody, 'jpg', path.join('public', 'uploads', 'images'),
+        (err, file_name) => {
+            if(err) return res.status(500).send('An error occured! '+ err);
+            res.json({
+                message: 'Success',
+                file_name: file_name
+            });
+        }
+    );
 });
 
 app.use(function (req, res) {

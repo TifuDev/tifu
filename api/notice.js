@@ -1,3 +1,5 @@
+const { existsSync, mkdirSync } = require('fs');
+const path = require('path');
 const db = require('../utils/db');
 const {Sitemap} = require('../utils/sitemap');
 require('dotenv').config();
@@ -83,6 +85,10 @@ class Notice {
                 
                 if(authorData.noticeCollection.length !== 0) collectionId = authorData.noticeCollection.length;
                 if(highestId !== null) id = highestId._id +1;
+                
+                writeNotice(this.path, content);
+                sitemap.addUrlToSet(this.uri, current.toISOString());
+                sitemap.write();
                 await db.news.create({
                     _id: id,
                     title: title,
@@ -101,10 +107,6 @@ class Notice {
                         noticeCollection: collectionId
                     }
                 });
-
-                writeNotice(this.path, content);
-                sitemap.addUrlToSet(this.uri, current.toISOString());
-                sitemap.write();
             }
         } catch (e) {
             err = e;
@@ -175,10 +177,12 @@ async function seeCatalog(callback, filters, sort, limit) {
 }
 
 function writeNotice(name, content) {
-    const path = `news/${name}.md`;
-    require('fs').writeFileSync(path, content);
+    const dir = 'news',
+        file_path = path.join(dir, `${name}.md`);
+    if(!existsSync(dir)) mkdirSync(dir);
+    require('fs').writeFileSync(file_path, content);
 
-    return path;
+    return file_path;
 }
 
 module.exports = {
