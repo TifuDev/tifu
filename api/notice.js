@@ -35,7 +35,7 @@ class CharactersNotURLSafe extends Error{
 }
 class Notice {
     constructor(path) {
-        this.charset = "abcdefghijklmnopqrstuvwxyz1234567890"; 
+        this.charset = "abcdefghijklmnopqrstuvwxyz1234567890_-"; 
         this.path = path;
         
         Array.from(path).forEach(char => {
@@ -44,7 +44,7 @@ class Notice {
         });
 
         this.uri = `${process.env.HOST}/new/${path}`;
-        this.file_path = `news/${path}.md`;
+        this.file_path = `news/${path}.md`; 
 
         this.notice = {
             data: {},
