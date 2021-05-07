@@ -1,6 +1,7 @@
 const {user} = require('../utils/db'),
-    {hashString} = require('../utils/hash');
-
+    {hashString} = require('../utils/hash'),
+    {sign} = require('jsonwebtoken');
+require('dotenv').config()
 class UsernameAlreadyUsed extends Error {
     constructor(msg) {
         super(msg);
@@ -21,9 +22,37 @@ class UserNotFound extends Error{
         this.name = "UserNotFound";
     }
 }
+
+class LoginFailed extends Error{
+    constructor(msg){
+        this.msg ='Login failed! Username or Password incorrect!';
+        if(msg !== null) this.msg = msg;
+        
+        this.name = "LoginFailed";
+    }
+}
 class User{
     constructor(username){
         this.username = username;
+        this.login = async (password, callback) => {
+            let token,
+                err;
+            const userMatched = await user.findOne({
+                username: this.username,
+                passwd: hashString(password)
+            });
+            try {
+                if(userMatched == null) throw new LoginFailed();
+                token = sign({
+                        username: this.username
+                    }, process.env.ACCTOKEN_SECRET, 
+                    {
+                        expiresIn: process.env.ACCTOKEN_LIFE
+                    });
+            } catch (e) {err = e;}
+
+            callback(err, token);
+        };
     }
     async get(callback){
         let err;
@@ -35,12 +64,11 @@ class User{
             this.email = req.email;
             this.posts = req.posts;
             this.details = req.details;
-            this.refresh = req.reftoken;
 
             data.email = req.email;
             data.posts = req.posts;
             data.details = req.details;
-            data.refresh = req.reftoken;
+            // data.refresh = req.reftoken;
 
         } catch (e) {
             err = e;
@@ -132,5 +160,5 @@ class User{
 }
 
 module.exports = {
-    User
+    User, UserNotFound, UsernameAlreadyUsed, EmailAlreadyUsed
 };

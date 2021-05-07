@@ -3,14 +3,13 @@ const express = require('express'),
     compression = require('compression'),
     cookieParser = require('cookie-parser'),
     showdown = require('showdown'),
-    auth = require('./api/security'),
     sec = require('./api/securityv2'),
     upload = require('./api/upload'),
     path = require('path'),
+    user = require('./api/user'),
     port = 3000;
 
 var app = express();
-
 app.use(compression());
 app.use(express.urlencoded({
     extended: false
@@ -22,12 +21,6 @@ app.set('views', 'public/views');
 app.use(express.static('public'));
 
 app.get('/', (req, res) => {
-    // notice.seeCatalog((err, doc) => res.render('index', {
-    //     data: doc
-    // }), {}, {
-    //     downloads: -1,
-    //     date: -1
-    // });
     res.render('index');
 });
 
@@ -36,17 +29,20 @@ app.route('/login')
         res.render('login');
     })
     .post((req, res) => {
-        auth.login(req.body.username, req.body.passwd, (err, data) => {
-            if (err) return res.render('login', {
-                credential_not_valid: true
-            });
+        new user.User(req.body.username).login(req.body.passwd, (err, token) => {
+            if (err) 
+                return res.render('login', {
+                    credential_not_valid: true
+                });
+            res.cookie('access', token);
 
-            res.cookie('access', data.access);
+            if(req.query.return_to)
+                return res.redirect(req.query.return_to);
             res.redirect('/');
         });
     });
 
-app.get('/new/:id', (req, res, next) => {
+app.get('/new/:path', (req, res, next) => {
     const classMap = {
             h1: 'my-2 text-2xl underline font-semibold',
             p: 'my-2 font-light',
@@ -63,7 +59,7 @@ app.get('/new/:id', (req, res, next) => {
             noHeaderId: true,
             extensions: [bindings]
         });
-    new notice.Notice(req.params.id).get((err, notice) => {
+    new notice.Notice(req.params.path).get((err, notice) => {
         if (err) return next();
         res.render('notice', {
             title: notice.data.title,
@@ -111,9 +107,9 @@ app.get('/new/:path/modify', sec.noticeOwnerCookie, (req, res) => {
 });
 
 app.post('/api/login', (req, res) => {
-    auth.login(req.body.username, req.body.passwd, (err, data) => {
+    new user.User(req.body.username).login(req.body.passwd, (err, token) => {
         if (err) return res.status(401).send('Credentials not valid');
-        res.json(data);
+        res.json(token);
     });
 });
 

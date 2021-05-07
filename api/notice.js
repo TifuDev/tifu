@@ -24,9 +24,25 @@ class Forbidden extends Error {
         this.name = "Forbidden";
     }
 }
+
+class CharactersNotURLSafe extends Error{
+    constructor(msg) {
+        this.msg = "Character used in url are not valid in charset";
+        if(msg !== null)
+            this.msg = msg;
+        this.name = 'CharactersNotURLSafe';
+    }
+}
 class Notice {
     constructor(path) {
+        this.charset = "abcdefghijklmnopqrstuvwxyz1234567890"; 
         this.path = path;
+        
+        Array.from(path).forEach(char => {
+            if(this.charset.indexOf(char) === -1)
+                throw new CharactersNotURLSafe();
+        });
+
         this.uri = `${process.env.HOST}/new/${path}`;
         this.file_path = `news/${path}.md`;
 
@@ -50,10 +66,9 @@ class Notice {
                     downloads: 1
                 }
             });
-
-            if (!notice.data) {
+            if (!notice.data)
                 throw new NoticeNotFound('Notice id not found');
-            }
+            
             notice.content = require('fs').readFileSync(this.file_path, 'utf-8');
         } catch (e) {
             err = e;
