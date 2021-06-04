@@ -1,0 +1,199 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+        "version": "1.0.0",
+        "title": "OpenAPI Docs"
+    },
+    "license": {
+        "name": "Apache 2.0",
+        "url": "https://www.apache.org/licenses/LICENSE-2.0.html"
+    },
+    "servers": [
+        {
+            "url": "http://localhost:3000/api",
+            "description": "Local Server"
+        }
+    ],
+    "tags": [
+        {
+            "name": "News catalog"
+        },
+        {
+            "name": "News"
+        }
+    ],
+    "paths": {
+        "/catalog":{
+            "get": {
+                "tags": ["News catalog"],
+                "description": "Return JSON containing an array of news",
+                "operationId": "getCatalog",
+                "responses": {
+                    "200": {
+                        "description": "Catalog obtained",
+                        "content": {
+                            "application/json":{
+                                "schema": {
+                                    "$ref": "#/components/schema/Catalog"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/new/{path}": {
+            "get": {
+                "tags": ["News"],
+                "description": "Return New in JSON object",
+                "operationId": "getNew",
+                "parameters": [{
+                    "in": "path",
+                    "name": "path",
+                    "required": true,
+                    "schema": {
+                        "type": "string"
+                    },
+                    "description": "Path for new"
+                }],
+                "responses":{
+                    "200": {
+                        "description": "New obtained",
+                        "content": {
+                            "aplication/json": {
+                                "schema": {
+                                    "$ref": "#/components/schema/New"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "The path informed can not be found"
+                    }
+                }
+            }
+        },
+        "/new/{path}/modify": {
+            "get": {
+                "tags": ["News"],
+                "description": "Modify content of New",
+                "operationId": "modifyNew",
+                "parameters": [{
+                    "in": "path",
+                    "name": "path",
+                    "required": true,
+                    "schema": {
+                        "type": "string"
+                    },
+                    "description": "Path for new"
+                }],
+                "security": [{
+                    "BearerAuth": ["admin"]
+                }],
+                "responses": {
+                    "200": {
+                        "description": "New modified"
+                    }
+                }
+            }
+        },
+        "/login": {
+            "post": {
+                "tags": ["User"],
+                "description": "Log into a admin account",
+                "operationId": "login",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/x-www-form-urlencoded": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "username": {
+                                        "description": "Users's name",
+                                        "schema": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "passwd": {
+                                        "description": "Users's password",
+                                        "schema": {
+                                            "type": "string",
+                                            "format": "password"
+                                        }
+                                    }
+                                },
+                                "required": ["username", "passwd"]
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Access token obtained",
+                        "content": {
+                            "text/plain": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Credentials not valid"
+                    }
+                }
+            } 
+        }
+    },
+    "components": {
+        "securitySchemes": {
+            "BearerAuth": {
+                "type": "http",
+                "scheme": "bearer"
+            }
+        },
+        "schema": {
+            "Catalog": {
+                "type":"array"
+            },
+            "New": {
+                "type": "object",
+                "properties": {
+                    "data": {
+                        "type": "object",
+                        "properties": {
+                            "_id": {
+                                "type": "integer"
+                            },
+                            "title": {
+                                "type": "string"
+                            },
+                            "desc": {
+                                "type": "string"
+                            },
+                            "path": {
+                                "type": "string"
+                            },
+                            "author": {
+                                "type": "string"
+                            },
+                            "date": {
+                                "type": "string"
+                            },
+                            "downloads": {
+                                "type": "integer"
+                            },
+                            "collectionId": {
+                                "type": "integer"
+                            }
+                        }
+                    },
+                    "content": {
+                        "type": "string"
+                    }
+                }
+            }
+        }
+    }
+}

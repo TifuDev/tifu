@@ -7,17 +7,18 @@ Steps to configure a localhost to tifu
 * NodeJS
 * NPM tool
 
+*Or using docker*
+
+* docker-compose
+
 ## Start
 Run this command when MongoDB service is running
 
 `npm start`
 
-## Set up Docker
-`sudo docker pull mongo`
+## Starting containers
 
-`sudo mkdir -p /mongo`
-
-`sudo docker run -it -v mongo:/data/db --name mongo -d mongo`
+`sudo docker-compose up -d`
 
 ## Access container
-`sudo docker exec -it mongo /usr/bin/mongo`
+`sudo docker exec -it tifu_web_1 /usr/bin/mongo`
