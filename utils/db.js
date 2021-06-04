@@ -2,7 +2,8 @@ require('dotenv').config();
 const mongoose = require('mongoose');
 
 const uri =
-    `mongodb://${process.env.DB_HOST}:${process.env.DB_PORT}/tifu`;
+    `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PWD}@${process.env.DB_HOST}/${process.env.DB_NAME}?retryWrites=true&w=majority`;
+
 var news = mongoose.model('new', mongoose.Schema({
     _id: Number,
     title: String,
@@ -21,8 +22,7 @@ var user = mongoose.model('user', mongoose.Schema({
     email: String,
     details: Object,
     noticeCollection: Array,
-    // reftoken: String,
-    passwd: String
+    pwd: String
 }, {
     versionKey: false
 }));
@@ -32,6 +32,8 @@ mongoose.connect(uri, {
     useUnifiedTopology: true,
     useFindAndModify: false
 });
+
+mongoose.connection.on('open', () => console.log('Database connected succesfully'));
 
 module.exports = {
     mongoose,
