@@ -20,5 +20,10 @@ Run this command when MongoDB service is running
 
 `sudo docker-compose up -d`
 
+## Setting environment variables
+
+`echo 'VAR=<var>' >> .env`  
+
+**docker-compose uses environment variables to load database secrets**
 ## Access container
-`sudo docker exec -it tifu_web_1 /usr/bin/mongo`
+`sudo docker exec -it tifu_web_1 /usr/bin/bash`
