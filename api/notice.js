@@ -2,7 +2,6 @@ const { existsSync, mkdirSync } = require('fs');
 const path = require('path');
 const db = require('../utils/db');
 const {Sitemap} = require('../utils/sitemap');
-require('dotenv').config();
 
 class NoticeAlreadyExits extends Error {
     constructor(msg) {

@@ -3,7 +3,6 @@ const {verify} = require('jsonwebtoken'),
     {hashString} = require('../utils/hash'), 
     {signTokens} = require('../utils/signTokens'),
     {User} = require('./user');
-require('dotenv').config();
 
 async function loginToRefresh(username, passwd) {
     return await user.findOne({

@@ -1,7 +1,6 @@
 const {verify} = require('jsonwebtoken'),
     {User} = require('./user'),
     {Notice} = require('./notice');
-require('dotenv').config();
 
 function errorHandler(err, req, res, next){
     if(err.name === "TokenExpiredError")

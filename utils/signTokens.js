@@ -1,6 +1,5 @@
 const {sign,verify} = require('jsonwebtoken'), 
     {user} = require('./db');
-require('dotenv').config();
 
 async function signTokens(payload, type = "access") {
     let token;

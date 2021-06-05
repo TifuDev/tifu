@@ -1,7 +1,6 @@
 const fs = require('fs');
 const path = require('path');
 const {v4: uuidv4} = require('uuid');
-require('dotenv').config();
 
 function handleBinary(req, res, next){
     var data = new Buffer.from('');

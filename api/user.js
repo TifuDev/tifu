@@ -1,7 +1,6 @@
 const {user} = require('../utils/db'),
     {hashString} = require('../utils/hash'),
     {sign} = require('jsonwebtoken');
-require('dotenv').config()
 class UsernameAlreadyUsed extends Error {
     constructor(msg) {
         super(msg);
@@ -25,34 +24,35 @@ class UserNotFound extends Error{
 
 class LoginFailed extends Error{
     constructor(msg){
-        this.msg ='Login failed! Username or Password incorrect!';
-        if(msg !== null) this.msg = msg;
+        super(msg);
         
+        if(msg === null)
+            this.msg ='Login failed! Username or Password incorrect!';        
         this.name = "LoginFailed";
     }
 }
 class User{
     constructor(username){
         this.username = username;
-        this.login = async (password, callback) => {
-            let token,
-                err;
-            const userMatched = await user.findOne({
-                username: this.username,
-                passwd: hashString(password)
-            });
-            try {
-                if(userMatched == null) throw new LoginFailed();
-                token = sign({
-                        username: this.username
-                    }, process.env.ACCTOKEN_SECRET, 
-                    {
-                        expiresIn: process.env.ACCTOKEN_LIFE
-                    });
-            } catch (e) {err = e;}
+        // this.login = async (password, callback) => {
+        //     let token,
+        //         err;
+        //     const userMatched = await user.findOne({
+        //         username: this.username,
+        //         passwd: hashString(password)
+        //     });
+        //     try {
+        //         if(userMatched == null) throw new LoginFailed();
+        //         token = sign({
+        //                 username: this.username
+        //             }, process.env.ACCTOKEN_SECRET, 
+        //             {
+        //                 expiresIn: process.env.ACCTOKEN_LIFE
+        //             });
+        //     } catch (e) {err = e;}
 
-            callback(err, token);
-        };
+        //     callback(err, token);
+        // };
     }
     async get(callback){
         let err;
@@ -153,6 +153,26 @@ class User{
         }
 
         callback(err);
+    }
+    async login(password, callback){
+        let token,
+            err;
+        const userMatched = await user.findOne({
+            username: this.username,
+            password: hashString(password)
+        });
+
+        try {
+            if(userMatched === null) 
+                throw new LoginFailed();
+            token = sign({
+                    username: this.username}, 
+                    process.env.ACCTOKEN_SECRET, {
+                    expiresIn: process.env.ACCTOKEN_LIFE
+                });
+        } catch (e) {err = e;}
+
+        callback(err, token);
     }
     noticeOwner(path){
         return (this.posts.indexOf(path) === -1) ? false : true;

@@ -1,4 +1,3 @@
-require('dotenv').config();
 const mongoose = require('mongoose');
 
 const uri =
@@ -22,7 +21,7 @@ var user = mongoose.model('user', mongoose.Schema({
     email: String,
     details: Object,
     noticeCollection: Array,
-    pwd: String
+    password: String
 }, {
     versionKey: false
 }));
