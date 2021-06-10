@@ -110,10 +110,13 @@ app.get('/new/:path/modify', sec.noticeOwnerCookie, (req, res) => {
     });
 });
 
-app.post('/api/login', (req, res) => {
-    new user.User(req.body.username).login(req.body.passwd, (err, token) => {
+app.post('/api/login', async (req, res, next) => {
+    await new user.User(req.body.username).login(req.body.password, (err, token) => {
         if (err) return res.status(401).send('Credentials not valid');
         res.json(token);
+    }).catch(err => {
+        console.log(err);
+        next(err);
     });
 });
 
@@ -180,6 +183,24 @@ app.get('/api/upload/image', upload.handleBinary, (req, res) => {
             });
         }
     );
+});
+
+app.get('/api/new/:path/write', sec.authMiddleware, async (req, res, next) => {
+    const body = req.body;
+    await new notice.Notice(req.params.path).createPost(
+        body.title,
+        body.desc,
+        req.user.username,
+        body.content,
+        (err, data) => {
+            if(err) {
+                return res.status(500).send("An error ocurred");
+            }
+            res.status(201).send(data);
+        }
+    ).catch(err => {
+        next(err);
+    });
 });
 
 app.use(function (req, res) {

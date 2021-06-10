@@ -103,7 +103,8 @@ class Notice {
                 writeNotice(this.path, content);
                 sitemap.addUrlToSet(this.uri, current.toISOString());
                 sitemap.write();
-                await db.news.create({
+
+                var data = {
                     _id: id,
                     title: title,
                     desc: desc,
@@ -112,7 +113,9 @@ class Notice {
                     date: current,
                     downloads: 0,
                     collectionId: collectionId
-                });
+                };
+
+                await db.news.create(data);
 
                 await db.user.updateOne({
                     username: author
@@ -130,7 +133,7 @@ class Notice {
         this.notice.data.desc = desc;
         this.notice.content = content;
 
-        callback(err);
+        callback(err, data);
     }
     async remove(callback) {
         let err,

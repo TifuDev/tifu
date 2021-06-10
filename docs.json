@@ -144,6 +144,59 @@
                     }
                 }
             } 
+        },
+        "/new/{path}/write": {
+            "get": {
+                "tags": ["News"],
+                "description": "Write new",
+                "operationId": "writeNew",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/x-www-form-urlencoded": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "title": {
+                                        "description": "Title of new",
+                                        "schema": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "desc": {
+                                        "description": "Description of new",
+                                        "schema": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "content": {
+                                        "description": "Content of new",
+                                        "schema": {
+                                            "type": "string"
+                                        }
+                                    }
+                                },
+                                "required": ["username", "passwd"]
+                            }
+                        }
+                    }
+                },
+                "security": [{
+                    "BearerAuth": ["admin"]
+                }],
+                "responses": {
+                    "201": {
+                        "description": "New created successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
         }
     },
     "components": {
