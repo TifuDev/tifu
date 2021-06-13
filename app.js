@@ -185,9 +185,8 @@ app.get('/api/new/:path/write', sec.authMiddleware, async (req, res, next) => {
         req.user.username,
         body.content,
         (err, data) => {
-            if(err) {
+            if(err)
                 return res.status(500).send("An error ocurred");
-            }
             res.status(201).send(data);
         }
     ).catch(err => {

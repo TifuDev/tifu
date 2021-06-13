@@ -58,13 +58,7 @@ class Notice {
             },
             err;
         try {
-            notice.data = await db.news.findOneAndUpdate({
-                path: this.path
-            }, {
-                $inc: {
-                    downloads: 1
-                }
-            });
+            notice.data = await this.download(path);
             if (!notice.data)
                 throw new NoticeNotFound('Notice id not found');
             
@@ -179,6 +173,13 @@ class Notice {
             }
         });
         this.notice.data.desc = desc;
+    }
+    static async download(path){
+        return await db.news.findOneAndUpdate({path}, {
+            $inc: {
+                downloads: 1
+            }
+        });
     }
 }
 
