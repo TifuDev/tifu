@@ -1,234 +1,54 @@
-const {verify} = require('jsonwebtoken'), 
-    {user} = require('../utils/db'), 
-    {hashString} = require('../utils/hash'), 
-    {signTokens} = require('../utils/signTokens'),
-    {User} = require('./user');
+const {verify} = require('jsonwebtoken'),
+    {User} = require('./user'),
+    {Notice} = require('./notice');
 
-async function loginToRefresh(username, passwd) {
-    return await user.findOne({
-        username: username,
-        passwd: hashString(passwd)
-    }, 'reftoken');
+function errorHandler(err, req, res, next){
+    if(err.name === "TokenExpiredError")
+        return res.status(403).redirect(`/login?return_to=${req.originalUrl}`);
+    
+    if(err.name === "JsonWebTokenError")
+        return res.status(405).redirect(`/login?return_to=${req.originalUrl}`);
+
+    return res.send("An error occured");
 }
 
-function authMiddleware(req, res, next) {
-    if(!req.headers.authorization){
-        return res.status(401).send("No token provided");
-    }
+async function authMiddleware(req, res, next){
+    const authHeader = req.headers.authorization;
+    if(!authHeader) return res.status(405).send('No authorization header provided');
     
-    const token = req.headers.authorization.split(' ')[1];
-    if (!token) return res.status(401).send("No token provided");
+    const access = authHeader.split('Bearer ')[1];
+    if(!access) return res.status(405).send('No token provided');
+    verify(access, process.env.ACCTOKEN_SECRET, (err, dec) => {
+        if(err) return errorHandler(err, req, res, next);
+        const user = new User(dec.username);
+        user.get(err => {
+            if(err){
+                if(err.name === 'UserNotFound') return res.status(404).send('User provided do not exists!');
+            }
+            req.user = user;
+            next();
+        });
+    });
+}
 
-    verify(token, process.env.ACCTOKEN_SECRET, (err, dec) => {
-        if (err) return res.status(403).send('Failed to authenticate');
-        req.username = dec.username;
+function cookieMiddleware(req, res, next){
+    req.headers.authorization = 'Bearer ' + req.cookies.access;
+    authMiddleware(req, res, next);
+}
+
+function noticeOwnerCookie(req, res, next){
+    req.headers.authorization = 'Bearer ' + req.cookies.access;
+    noticeOwner(req, res, next);
+}
+
+function noticeOwner(req, res, next){
+    const notice = new Notice(req.params.path);
+    authMiddleware(req, res, async () => {
+        if(!req.user.noticeOwner(await notice.get())) 
+            return res.status(403).send('You are not the owner of ' + req.params.path);
+        req.notice = notice;
         next();
     });
 }
 
-function webAuth(req, res, next) {
-    const access = req.cookies.access,
-        refresh = req.cookies.refresh;
-
-    verify(access, process.env.ACCTOKEN_SECRET, (err, dec) => {
-        if (err) {
-            if (refresh) {
-                refreshAccess(refresh, (err, data) => {
-                    if (err) return res.status(403).send('Failed to authenticate');
-
-                    res.cookie('access', data.token);
-                    req.username = verify(refresh, process.env.REFTOKEN_SECRET).username;
-                    next();
-                });
-            } else return res.status(401).send('No refresh provided');
-        } else {
-            req.username = dec.username;
-            next();
-        }
-    });
-}
-
-async function noticeOwner(req, res, next){
-    const access = req.cookies.access,
-        refresh = req.cookies.refresh;
-
-    verify(access, process.env.ACCTOKEN_SECRET, (err, dec) => {
-        if (err) {
-            if (refresh) {
-                refreshAccess(refresh, (err, data) => {
-                    if (err) return res.status(403).send('Failed to authenticate');
-
-                    res.cookie('access', data.token);
-                    req.username = verify(refresh, process.env.REFTOKEN_SECRET).username;
-                });
-            } else return res.status(401).send('No refresh provided');
-        } else req.username = dec.username;
-    });
-    const account = new User(req.username);
-    await account.getData();
-    if(!account.noticeOwner(req.params.id)){
-        return res.status(403).send('You are not the owner of notice');
-    }
-    next();
-}
-
-async function getTokens(username) {
-    const query = await user.findOne({
-        username: username
-    }, 'reftoken');
-
-    let status = 'UNOTF';
-    let refresh;
-    let token;
-
-    if (query !== null) {
-        status = 'SUCC';
-        refresh = await signTokens({
-            username: username
-        }, 'refresh');
-        token = await signTokens({
-            username: username
-        }, 'access');
-    }
-    return {
-        status: status,
-        token: token,
-        refresh: refresh
-    };
-}
-
-async function refreshAccess(refreshToken, callback) {
-    const serverRefreshToken = await user.findOne({
-        reftoken: refreshToken
-    }, 'reftoken');
-
-    let token,
-        err;
-
-    try {
-        const dectoken = verify(serverRefreshToken.reftoken, process.env.REFTOKEN_SECRET);
-        token = await signTokens({
-            username: dectoken.username
-        }, 'access');
-    } catch (e) {
-        err = e;
-    }
-
-    callback(err, {
-        token: token
-    });
-}
-
-async function newRefresh(username, passwd) {
-    let status = 'FORB';
-
-    let refreshToken;
-    const serverRefreshToken = await loginToRefresh(username, passwd);
-
-    if (serverRefreshToken !== null) {
-        refreshToken = await signTokens({
-            username: username
-        }, 'refresh');
-
-        await user.updateOne(
-            filter = {
-                username: username
-            },
-            update = {
-                $set: {
-                    reftoken: refreshToken
-                }
-            }
-        );
-        status = 'SUCC';
-    }
-
-    return {
-        status: status,
-        reftoken: refreshToken
-    };
-}
-
-async function getRefresh(username, passwd) {
-    let status = 'FORB',
-        refreshToken;
-    const serverRefreshToken = await loginToRefresh(username, passwd);
-
-    if (serverRefreshToken !== null) {
-        refreshToken = serverRefreshToken.reftoken;
-        status = 'SUCC';
-    }
-
-    return {
-        status: status,
-        reftoken: refreshToken
-    };
-}
-
-async function login(username, passwd, callback) {
-    const matchedUser = await user.findOne({
-        username: username,
-        passwd: hashString(passwd)
-    });
-
-    let token,
-        reftoken,
-        err;
-
-    try {
-        const receivedTokens = await getTokens(matchedUser.username);
-        token = receivedTokens.token;
-        reftoken = receivedTokens.refresh;
-    } catch (e) {
-        err = e;
-    }
-
-    callback(err, {
-        access: token,
-        reftoken: reftoken
-    });
-}
-
-async function generateToken(username) {
-    const payload = {
-        username: username
-    };
-
-    let token,
-        reftoken,
-        status = 'UNOTF';
-    if (await user.findOne({
-            username: username
-        }) !== undefined) {
-        token = await signTokens(payload, 'access');
-        reftoken = await signTokens(payload, 'refresh');
-
-        await user.updateOne({
-            username: username
-        }, {
-            $set: {
-                reftoken: reftoken
-            }
-        });
-
-        status = 'SUCC';
-    }
-
-    return {
-        status: status,
-        token: token,
-        reftoken: reftoken
-    };
-}
-
-module.exports = {
-    authMiddleware,
-    login,
-    getTokens,
-    getRefresh,
-    generateToken,
-    newRefresh,
-    refreshAccess,
-    webAuth,
-    noticeOwner
-};
+module.exports = {authMiddleware, noticeOwner, cookieMiddleware, noticeOwnerCookie};

@@ -3,7 +3,7 @@ const express = require('express'),
     compression = require('compression'),
     cookieParser = require('cookie-parser'),
     showdown = require('showdown'),
-    sec = require('./api/securityv2'),
+    sec = require('./api/security'),
     upload = require('./api/upload'),
     path = require('path'),
     user = require('./api/user'),
@@ -123,9 +123,7 @@ app.post('/api/login', async (req, res, next) => {
 app.get('/api/new/:path/remove', sec.noticeOwner, (req, res) => {
     req.notice.remove(err => {
         if(err) return res.status(500).send('An error occurred! ' + err);
-        res.json({
-            message: 'Success'
-        });
+        res.status(204);
     });
 });
 
@@ -134,26 +132,20 @@ app.get('/api/catalog', (req, res) => {
         limit = 0,
         sort = {};
     if (req.query) {
-        if (req.query.q) {
+        if (req.query.q)
             filters = {
                 title: {
                     $regex: new RegExp(req.query.q)
                 }
             };
-        }
-        if (req.query.author) {
+        if (req.query.author)
             filters = {
                 author: req.query.author
             };
-        }
-        if (req.query.lim) {
+        if (req.query.lim)
             limit = Number(req.query.lim);
-        }
-        if (req.query.highest) {
-            sort = {
-                downloads: -1
-            };
-        }
+        if (req.query.highest)
+            sort = {downloads: -1};
     }
     notice.seeCatalog((err, doc) => {
         if (err) return res.status(500);

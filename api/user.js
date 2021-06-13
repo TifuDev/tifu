@@ -34,25 +34,6 @@ class LoginFailed extends Error{
 class User{
     constructor(username){
         this.username = username;
-        // this.login = async (password, callback) => {
-        //     let token,
-        //         err;
-        //     const userMatched = await user.findOne({
-        //         username: this.username,
-        //         passwd: hashString(password)
-        //     });
-        //     try {
-        //         if(userMatched == null) throw new LoginFailed();
-        //         token = sign({
-        //                 username: this.username
-        //             }, process.env.ACCTOKEN_SECRET, 
-        //             {
-        //                 expiresIn: process.env.ACCTOKEN_LIFE
-        //             });
-        //     } catch (e) {err = e;}
-
-        //     callback(err, token);
-        // };
     }
     async get(callback){
         let err;
@@ -66,9 +47,7 @@ class User{
             this.details = req.details;
 
             data.email = req.email;
-            data.posts = req.posts;
             data.details = req.details;
-            // data.refresh = req.reftoken;
 
         } catch (e) {
             err = e;
@@ -174,8 +153,10 @@ class User{
 
         callback(err, token);
     }
-    noticeOwner(path){
-        return (this.posts.indexOf(path) === -1) ? false : true;
+    noticeOwner(newObject){
+    	if(newObject.data.author !== this.username)
+	    return false;
+	return true;
     }
 }
 

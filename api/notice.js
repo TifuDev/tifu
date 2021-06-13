@@ -148,13 +148,6 @@ class Notice {
             await db.news.deleteOne({
                 path: this.path
             });
-            await db.user.updateOne({
-                username: this.notice.data.author
-            }, {
-                $pull: {
-                    posts: this.path
-                }
-            });
 
             require('fs').unlinkSync(this.file_path);
             sitemap.write();
