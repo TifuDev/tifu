@@ -16,6 +16,7 @@ app.use(compression());
 app.use(express.urlencoded({
     extended: false
 }));
+app.use(express.json());
 app.use(cookieParser());
 
 app.set('view engine', 'pug');
@@ -63,15 +64,14 @@ app.get('/new/:path', (req, res, next) => {
             noHeaderId: true,
             extensions: [bindings]
         });
-    new notice.Notice(req.params.path).get((err, notice) => {
-        if (err) return next();
-        res.render('notice', {
-            title: notice.data.title,
-            desc: notice.data.desc,
-            content: converter.makeHtml(notice.content),
-            date: notice.data.date
-        });
-    });
+    new notice.News(req.params.path).get()
+        .then((newObj, content) => {
+            res.render('notice', {
+                newObj,
+                content: converter.makeHtml(content)
+            });
+        })
+        .catch(err => next(err));
 });
 
 app.get('/editor', sec.cookieMiddleware, (req, res) => {
@@ -92,11 +92,10 @@ app.post('/editor', sec.cookieMiddleware, (req, res) => {
     });
 });
 
-app.get('/api/new/:id', (req, res, next) => {
-    new notice.Notice(req.params.id).get((err, notice) => {
-        if (err) return next();
-        res.json(notice);
-    });
+app.get('/api/new/:path', (req, res, next) => {
+    new notice.News(req.params.path).get()
+        .then((newObj, content) => res.json({data: newObj, content}))
+        .catch(err => next(err));
 });
 
 app.get('/new/:path/modify', sec.noticeOwnerCookie, (req, res) => {
@@ -114,10 +113,7 @@ app.post('/api/login', async (req, res, next) => {
     await new user.User(req.body.username).login(req.body.password, (err, token) => {
         if (err) return res.status(401).send('Credentials not valid');
         res.json(token);
-    }).catch(err => {
-        console.log(err);
-        next(err);
-    });
+    }).catch(err => next(err));
 });
 
 app.get('/api/new/:path/remove', sec.noticeOwner, (req, res) => {
@@ -177,21 +173,31 @@ app.get('/api/upload/image', upload.handleBinary, (req, res) => {
     );
 });
 
-app.get('/api/new/:path/write', sec.authMiddleware, async (req, res, next) => {
+app.get('/api/new/:path/write', sec.authMiddleware, (req, res, next) => {
     const body = req.body;
-    await new notice.Notice(req.params.path).createPost(
-        body.title,
-        body.desc,
-        req.user.username,
-        body.content,
-        (err, data) => {
-            if(err)
-                return res.status(500).send("An error ocurred");
-            res.status(201).send(data);
-        }
-    ).catch(err => {
-        next(err);
-    });
+    req.person.get()
+        .then((person) => {
+            new notice.News(req.params.path).write(
+                body.title,
+                body.content,
+                body.desc,
+                person,
+                body.metadata
+            ).then(newObj => res.json(newObj))
+            .catch(err => next(err));
+        })
+        .catch(err => next(err));
+});
+
+app.get('/api/person/:username', (req, res, next) => {
+    const person = new user.Person(req.params.username);
+    person.get()
+        .then(person => {
+            res.send(person);
+        })
+        .catch(err => {
+            next(err);
+        });
 });
 
 app.use(function (req, res) {

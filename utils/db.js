@@ -35,7 +35,7 @@ var news = mongoose.model('new', mongoose.Schema({
     versionKey: false
 }));
 
-var user = mongoose.model('user', mongoose.Schema({
+const userSchema = mongoose.Schema({
     firstName: String,
     familyName: String,
     username: String,
@@ -48,9 +48,14 @@ var user = mongoose.model('user', mongoose.Schema({
         gender: Number //0 to not know 1 to male and 2 to female
     },
     password: String
-}, {
-    versionKey: false
-}));
+}, {versionKey: false});
+
+userSchema.post('findOne', (person) => {
+    if(person !== null)
+        delete person._doc.password;
+});
+
+var user = mongoose.model('user', userSchema);
 
 mongoose.connect(uri, {
     useNewUrlParser: true,

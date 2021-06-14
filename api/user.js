@@ -181,7 +181,7 @@ class Person{
                 details,
                 password: hashedPwd
             };
-            
+
         return new Promise((resolve, reject) => {
             user.findOne({
                 $or: [
@@ -197,6 +197,15 @@ class Person{
                 if(err)
                     reject(err);
                 resolve(personObj);
+            });
+        });
+    }
+    get(){
+        return new Promise((resolve, reject) => {
+            user.findOne({username: this.username}, (err, doc) => {
+                if(err)
+                    reject(err);
+                resolve(doc);
             });
         });
     }

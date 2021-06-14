@@ -14,4 +14,4 @@ block content
             main 
                 |!{content}
             span
-                time(datetime=date) Postado #{pad(date.getUTCDate(), 2)} de #{monthNames[date.getMonth()]} de #{date.getFullYear()}
+                time(datetime=date) Postado #{pad(newObj.date.getUTCDate(), 2)} de #{monthNames[newObj.date.getMonth()]} de #{newObj.date.getFullYear()}

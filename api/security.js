@@ -1,6 +1,7 @@
 const {verify} = require('jsonwebtoken'),
-    {User} = require('./user'),
+    {User, Person} = require('./user'),
     {Notice} = require('./notice');
+const { user } = require('../utils/db');
 
 function errorHandler(err, req, res, next){
     if(err.name === "TokenExpiredError")
@@ -20,14 +21,22 @@ async function authMiddleware(req, res, next){
     if(!access) return res.status(405).send('No token provided');
     verify(access, process.env.ACCTOKEN_SECRET, (err, dec) => {
         if(err) return errorHandler(err, req, res, next);
-        const user = new User(dec.username);
-        user.get(err => {
-            if(err){
-                if(err.name === 'UserNotFound') return res.status(404).send('User provided do not exists!');
-            }
-            req.user = user;
-            next();
-        });
+        req.person = new Person(dec.username);
+        req.person.get()
+            .then(person => {
+                next();
+            })
+            .catch(err => {
+                res.status(404).send('User provided do not exists');
+            });
+        // const user = new User(dec.username);
+        // user.get(err => {
+        //     if(err){
+        //         if(err.name === 'UserNotFound') return res.status(404).send('User provided do not exists!');
+        //     }
+        //     req.user = user;
+        //     next();
+        // });
     });
 }
 
