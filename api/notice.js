@@ -1,9 +1,10 @@
-const { existsSync, mkdirSync } = require('fs');
+const { existsSync, mkdirSync, readFileSync} = require('fs');
+const { join } = require('path');
 const path = require('path');
 const db = require('../utils/db');
 const {Sitemap} = require('../utils/sitemap');
 
-class NoticeAlreadyExits extends Error {
+class NoticeAlreadyExists extends Error {
     constructor(msg) {
         super(msg);
         this.name = "NoticeExists";
@@ -86,7 +87,7 @@ class Notice {
                         title: title
                     }]
                 }).countDocuments() !== 0) {
-                throw new NoticeAlreadyExits('Notice id or title already exists');
+                throw new NoticeAlreadyExists('New already exist. Try another title or path');
             } else {
                 let id = 0,
                     collectionId = 0;
@@ -183,6 +184,73 @@ class Notice {
     }
 }
 
+class News{
+    constructor(path){
+        this.path = path;
+    }
+    get(){
+        return new Promise((resolve, reject) => {
+            db.news.findOneAndUpdate({path: this.path}, {
+                $inc: {
+                    downloads: 1
+                }
+            }, ((err, newObj) => {
+                if(err)
+                    reject(err);
+                const content = Buffer.from(readFileSync(path.join('news', `${this.path}.md`)));
+                resolve([newObj, content]);
+            }));            
+        });
+    }
+    write(title, content, desc, personObj, metadata){
+        const currentDate = new Date(),
+            sitemap = new Sitemap(join('public', 'sitemap.xml')),
+            dir = 'news',
+            file_path = join(dir, `${this.path}.md`);
+
+        sitemap.read();
+        sitemap.addUrlToSet(`${process.env.HOST}/news/${this.path}`, currentDate);
+        
+        return new Promise((resolve, reject) => {
+            db.news.find({$or: [{path: this.path}, {title}]}, (err, doc) => {
+                if(err)
+                    reject(err);
+                if(doc.length > 0)
+                    reject(new NoticeAlreadyExists('New already exist. Try another title or path'));
+            });
+            db.news.findOne({}, '_id', (err, doc) => {
+                let id = 0;
+                if(doc !== null)
+                    id = doc._id +1;
+                if(err)
+                    reject(err);
+                const newObj = {
+                    _id: id,
+                    title,
+                    desc,
+                    path: this.path,
+                    author: personObj,
+                    date: currentDate,
+                    dateLastmod: null,
+                    downloads: 0,
+                    metadata
+                };
+
+                db.news.create(newObj, err => {
+                    if(err)
+                        reject(err);
+                    if(!existsSync(dir)) mkdirSync(dir);
+                    require('fs').writeFileSync(file_path, content);
+                    sitemap.write();
+                  
+                    resolve(newObj);
+                });
+    
+            }).sort({_id: -1});
+        });
+    }
+}
+
 async function seeCatalog(callback, filters, sort, limit) {
     db.news.find(filters, callback).sort(sort).limit(limit);
 }
@@ -198,5 +266,6 @@ function writeNotice(name, content) {
 
 module.exports = {
     seeCatalog,
+    News,
     Notice
 };

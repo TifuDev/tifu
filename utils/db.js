@@ -8,19 +8,45 @@ var news = mongoose.model('new', mongoose.Schema({
     title: String,
     desc: String,
     path: String,
-    author: String,
+    author: {
+        firstName: String,
+        familyName: String,
+        username: String,
+        email: String,
+        details: {
+            profilePhotoUrl: String,
+            bio: String,
+            knowsLanguage: [String],
+            nationality: String,
+            gender: Number
+        }
+    },
     date: Date,
+    dateLastmod: Date,
     downloads: Number,
-    collectionId: Number
+    metadata: {
+        thumbnailUrl: String,
+        inLanguage: String,
+        keywords: [String],
+        accessMode: String,
+        isBasedOn: [String]
+    }
 }, {
     versionKey: false
 }));
 
 var user = mongoose.model('user', mongoose.Schema({
+    firstName: String,
+    familyName: String,
     username: String,
     email: String,
-    details: Object,
-    noticeCollection: Array,
+    details: {
+        profilePhotoUrl: String,
+        bio: String,
+        knowsLanguage: [String],
+        nationality: String,
+        gender: Number //0 to not know 1 to male and 2 to female
+    },
     password: String
 }, {
     versionKey: false

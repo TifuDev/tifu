@@ -8,6 +8,13 @@ class UsernameAlreadyUsed extends Error {
     }
 }
 
+class PersonalDataAlreadyUsed extends Error {
+    constructor(){
+        this.name = "PersonalDataAlreadyUsed";
+        this.msg = "The username, first name, last name or e-mail is already in use";
+    }
+}
+
 class EmailAlreadyUsed extends Error {
     constructor(msg) {
         super(msg);
@@ -155,11 +162,46 @@ class User{
     }
     noticeOwner(newObject){
     	if(newObject.data.author !== this.username)
-	    return false;
-	return true;
+	        return false;
+	    return true;
+    }
+}
+
+class Person{
+    constructor(username){
+        this.username = username;
+    }
+    create(firstName, familyName, email, details, password){
+        const hashedPwd = hashString(password),
+            personObj = {
+                firstName,
+                familyName,
+                username: this.username,
+                email,
+                details,
+                password: hashedPwd
+            };
+            
+        return new Promise((resolve, reject) => {
+            user.findOne({
+                $or: [
+                    {username: this.username}, {firstName, familyName}, {email}
+                ]
+            }, (err, doc) => {
+                if(err)
+                    reject(err);
+                if(doc === null)
+                    reject(new PersonalDataAlreadyUsed());
+            });
+            user.create(personObj, (err) => {
+                if(err)
+                    reject(err);
+                resolve(personObj);
+            });
+        });
     }
 }
 
 module.exports = {
-    User, UserNotFound, UsernameAlreadyUsed, EmailAlreadyUsed
+    User, UserNotFound, UsernameAlreadyUsed, EmailAlreadyUsed, Person
 };
