@@ -6,7 +6,7 @@ const express = require("express"),
     sec = require("./api/security"),
     upload = require("./api/upload"),
     path = require("path"),
-    user = require("./api/user"),
+    {Person} = require("./api/user"),
     swagger = require("swagger-ui-express"),
     fs = require("fs"),
     port = 3000;
@@ -34,17 +34,16 @@ app.route("/login")
         res.render("login");
     })
     .post((req, res) => {
-        new user.User(req.body.username).login(req.body.passwd, (err, token) => {
-            if (err) 
-                return res.render("login", {
-                    credential_not_valid: true
-                });
-            res.cookie("access", token);
-
-            if(req.query.return_to)
-                return res.redirect(req.query.return_to);
-            res.redirect("/");
-        });
+        new Person(req.body.username).login(req.body.passwd)
+            .then(([token, doc]) => {
+                res.cookie("access", token);
+                if (req.query.return_to)
+                    return res.redirect(req.query.return_to);
+                res.redirect('/');
+            })
+            .catch(() => {
+                res.render("login", {credential_not_valid: true});
+            });
     });
 
 app.get("/new/:path", (req, res, next) => {
@@ -96,22 +95,23 @@ app.get("/api/new/:path", (req, res, next) => {
         .catch(err => next(err));
 });
 
-app.get("/new/:path/modify", sec.noticeOwnerCookie, (req, res) => {
-    req.notice.get((err, notice) => {
-        if(err) return res.status(404).send("Notice Not Found");
-        res.render("modify", {
-            title: notice.data.title,
-            desc: notice.data.desc,
-            content: notice.content
-        });
-    });
-});
+// app.get("/new/:path/modify", sec.noticeOwnerCookie, (req, res) => {
+//     req.notice.get((err, notice) => {
+//         if(err) return res.status(404).send("Notice Not Found");
+//         res.render("modify", {
+//             title: notice.data.title,
+//             desc: notice.data.desc,
+//             content: notice.content
+//         });
+//     });
+// });
 
-app.post("/api/login", async (req, res, next) => {
-    await new user.User(req.body.username).login(req.body.password, (err, token) => {
-        if (err) return res.status(401).send("Credentials not valid");
-        res.json(token);
-    }).catch(err => next(err));
+app.post("/api/login", (req, res, next) => {
+    new Person(req.body.username).login(req.body.password)
+        .then(([token, doc]) => {
+            res.json(token);
+        })
+        .catch(err => next(err));
 });
 
 app.get("/api/new/:path/remove", sec.noticeOwner, (req, res) => {
@@ -147,13 +147,13 @@ app.get("/api/catalog", (req, res) => {
     }, filters, sort, limit);
 });
 
-app.get("/api/new/:path/modify", sec.noticeOwner, (req, res) => {    
-    if(req.body.title) req.notice.modifyNoticeTitle(req.body.title);
-    if(req.body.desc) req.notice.modifyNoticeDesc(req.body.desc);
-    if(req.body.content) req.notice.modifyNoticeContent(req.body.content);
+// app.get("/api/new/:path/modify", sec.noticeOwner, (req, res) => {    
+//     if(req.body.title) req.notice.modifyNoticeTitle(req.body.title);
+//     if(req.body.desc) req.notice.modifyNoticeDesc(req.body.desc);
+//     if(req.body.content) req.notice.modifyNoticeContent(req.body.content);
 
-    res.sendStatus(204);
-});
+//     res.sendStatus(204);
+// });
 
 app.get("/api/upload/image", upload.handleBinary, (req, res) => {
     const type = 
@@ -188,7 +188,7 @@ app.get("/api/new/:path/write", sec.authMiddleware, (req, res, next) => {
 });
 
 app.get("/api/person/:username", (req, res, next) => {
-    const person = new user.Person(req.params.username);
+    const person = new Person(req.params.username);
     person.get()
         .then(person => {
             res.send(person);
