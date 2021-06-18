@@ -1,9 +1,9 @@
-const { existsSync, mkdirSync, readFileSync} = require('fs');
-const { connect } = require('mongoose');
-const { join } = require('path');
-const path = require('path');
-const db = require('../utils/db');
-const {Sitemap} = require('../utils/sitemap');
+const { existsSync, mkdirSync, readFileSync} = require("fs");
+const { connect } = require("mongoose");
+const { join } = require("path");
+const path = require("path");
+const db = require("../utils/db");
+const {Sitemap} = require("../utils/sitemap");
 
 class NoticeAlreadyExists extends Error {
     constructor(msg) {
@@ -31,7 +31,7 @@ class CharactersNotURLSafe extends Error{
         this.msg = "Character used in url are not valid in charset";
         if(msg !== null)
             this.msg = msg;
-        this.name = 'CharactersNotURLSafe';
+        this.name = "CharactersNotURLSafe";
     }
 }
 class Notice {
@@ -62,9 +62,9 @@ class Notice {
         try {
             notice.data = await this.download(path);
             if (!notice.data)
-                throw new NoticeNotFound('Notice id not found');
+                throw new NoticeNotFound("Notice id not found");
             
-            notice.content = require('fs').readFileSync(this.file_path, 'utf-8');
+            notice.content = require("fs").readFileSync(this.file_path, "utf-8");
         } catch (e) {
             err = e;
         }
@@ -75,10 +75,10 @@ class Notice {
     }
     async createPost(title, desc, author, content, callback) {
         let err,
-            sitemap = new Sitemap('public/sitemap.xml');
+            sitemap = new Sitemap("public/sitemap.xml");
         const current = new Date(),
-            highestId = await db.news.findOne({}, '_id').sort({_id: -1}),
-            authorData = await db.user.findOne({username: author}, 'noticeCollection');
+            highestId = await db.news.findOne({}, "_id").sort({_id: -1}),
+            authorData = await db.user.findOne({username: author}, "noticeCollection");
         sitemap.read();
         try {
             if (await db.news.find({
@@ -88,7 +88,7 @@ class Notice {
                         title: title
                     }]
                 }).countDocuments() !== 0) {
-                throw new NoticeAlreadyExists('New already exist. Try another title or path');
+                throw new NoticeAlreadyExists("New already exist. Try another title or path");
             } else {
                 let id = 0,
                     collectionId = 0;
@@ -133,19 +133,19 @@ class Notice {
     }
     async remove(callback) {
         let err,
-            sitemap = new Sitemap('public/sitemap.xml');
+            sitemap = new Sitemap("public/sitemap.xml");
 
         try {
             sitemap.read();
             sitemap.removeUrlFromSet(`https://${this.uri}`);
             if (await db.news.findOne({
                     path: this.path
-                }) === null) throw new NoticeNotFound('Notice not found');
+                }) === null) throw new NoticeNotFound("Notice not found");
             await db.news.deleteOne({
                 path: this.path
             });
 
-            require('fs').unlinkSync(this.file_path);
+            require("fs").unlinkSync(this.file_path);
             sitemap.write();
         } catch (e) {
             err = e;
@@ -200,16 +200,16 @@ class News{
                     return reject(err);
 
                 if(newObj === null)
-                    return reject(new NoticeNotFound(''));
-                const content = Buffer.from(readFileSync(path.join('news', `${this.path}.md`)));
+                    return reject(new NoticeNotFound(""));
+                const content = Buffer.from(readFileSync(path.join("news", `${this.path}.md`)));
                 resolve([newObj, content]);
             }));            
         });
     }
     write(title, content, desc, personObj, metadata){
         const currentDate = new Date(),
-            sitemap = new Sitemap(join('public', 'sitemap.xml')),
-            dir = 'news',
+            sitemap = new Sitemap(join("public", "sitemap.xml")),
+            dir = "news",
             file_path = join(dir, `${this.path}.md`);
 
         sitemap.read();
@@ -220,9 +220,9 @@ class News{
                 if(err)
                     return reject(err);
                 if(doc.length > 0)
-                    return reject(new NoticeAlreadyExists('New already exist. Try another title or path'));
+                    return reject(new NoticeAlreadyExists("New already exist. Try another title or path"));
             });
-            db.news.findOne({}, '_id', (err, doc) => {
+            db.news.findOne({}, "_id", (err, doc) => {
                 let id = 0;
                 if(doc !== null)
                     id = doc._id +1;
@@ -244,7 +244,7 @@ class News{
                     if(err)
                         reject(err);
                     if(!existsSync(dir)) mkdirSync(dir);
-                    require('fs').writeFileSync(file_path, content);
+                    require("fs").writeFileSync(file_path, content);
                     sitemap.write();
                   
                     resolve(newObj);
@@ -260,10 +260,10 @@ async function seeCatalog(callback, filters, sort, limit) {
 }
 
 function writeNotice(name, content) {
-    const dir = 'news',
+    const dir = "news",
         file_path = path.join(dir, `${name}.md`);
     if(!existsSync(dir)) mkdirSync(dir);
-    require('fs').writeFileSync(file_path, content);
+    require("fs").writeFileSync(file_path, content);
 
     return file_path;
 }

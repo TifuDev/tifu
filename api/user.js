@@ -1,10 +1,10 @@
-const {user} = require('../utils/db'),
-    {hashString} = require('../utils/hash'),
-    {sign} = require('jsonwebtoken');
+const {user} = require("../utils/db"),
+    {hashString} = require("../utils/hash"),
+    {sign} = require("jsonwebtoken");
 class UsernameAlreadyUsed extends Error {
     constructor(msg) {
         super(msg);
-        this.name = 'UsernameAlreadyUsed';
+        this.name = "UsernameAlreadyUsed";
     }
 }
 
@@ -34,7 +34,7 @@ class LoginFailed extends Error{
         super(msg);
         
         if(msg === null)
-            this.msg ='Login failed! Username or Password incorrect!';        
+            this.msg ="Login failed! Username or Password incorrect!";        
         this.name = "LoginFailed";
     }
 }
@@ -63,7 +63,7 @@ class User{
         if(callback === undefined) return data;
         callback(err, data);
     }
-    async create(email, password, callback, details = {bio: '', profile_pic: ''}){
+    async create(email, password, callback, details = {bio: "", profile_pic: ""}){
         const users = await user.findOne({
             $or: [{
                     username: this.username
@@ -79,9 +79,9 @@ class User{
         try {
             if (users !== null) {
                 if (users.username === username) {
-                    throw new UsernameAlreadyUsed('Username already used by another account');
+                    throw new UsernameAlreadyUsed("Username already used by another account");
                 }
-                throw new EmailAlreadyUsed('Email already used by another account');
+                throw new EmailAlreadyUsed("Email already used by another account");
             }
     
             user.create({

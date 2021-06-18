@@ -1,13 +1,13 @@
-const fs = require('fs');
-const path = require('path');
-const {v4: uuidv4} = require('uuid');
+const fs = require("fs");
+const path = require("path");
+const {v4: uuidv4} = require("uuid");
 
 function handleBinary(req, res, next){
-    var data = new Buffer.from('');
-    req.on('data', function(chunk) {
+    var data = new Buffer.from("");
+    req.on("data", function(chunk) {
         data = Buffer.concat([data, chunk]);
     });
-    req.on('end', function() {
+    req.on("end", function() {
         req.rawBody = data;
         if(data.length > process.env.UPLOAD_LIMIT)
             return res.status(413).send(

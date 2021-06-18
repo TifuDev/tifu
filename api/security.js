@@ -1,7 +1,7 @@
-const {verify} = require('jsonwebtoken'),
-    {User, Person} = require('./user'),
-    {Notice} = require('./notice');
-const { user } = require('../utils/db');
+const {verify} = require("jsonwebtoken"),
+    {User, Person} = require("./user"),
+    {Notice} = require("./notice");
+const { user } = require("../utils/db");
 
 function errorHandler(err, req, res, next){
     if(err.name === "TokenExpiredError")
@@ -15,10 +15,10 @@ function errorHandler(err, req, res, next){
 
 async function authMiddleware(req, res, next){
     const authHeader = req.headers.authorization;
-    if(!authHeader) return res.status(405).send('No authorization header provided');
+    if(!authHeader) return res.status(405).send("No authorization header provided");
     
-    const access = authHeader.split('Bearer ')[1];
-    if(!access) return res.status(405).send('No token provided');
+    const access = authHeader.split("Bearer ")[1];
+    if(!access) return res.status(405).send("No token provided");
     verify(access, process.env.ACCTOKEN_SECRET, (err, dec) => {
         if(err) return errorHandler(err, req, res, next);
         req.person = new Person(dec.username);
@@ -27,12 +27,12 @@ async function authMiddleware(req, res, next){
                 next();
             })
             .catch(err => {
-                res.status(404).send('User provided do not exists');
+                res.status(404).send("User provided do not exists");
             });
         // const user = new User(dec.username);
         // user.get(err => {
         //     if(err){
-        //         if(err.name === 'UserNotFound') return res.status(404).send('User provided do not exists!');
+        //         if(err.name === "UserNotFound") return res.status(404).send("User provided do not exists!");
         //     }
         //     req.user = user;
         //     next();
@@ -41,12 +41,12 @@ async function authMiddleware(req, res, next){
 }
 
 function cookieMiddleware(req, res, next){
-    req.headers.authorization = 'Bearer ' + req.cookies.access;
+    req.headers.authorization = "Bearer " + req.cookies.access;
     authMiddleware(req, res, next);
 }
 
 function noticeOwnerCookie(req, res, next){
-    req.headers.authorization = 'Bearer ' + req.cookies.access;
+    req.headers.authorization = "Bearer " + req.cookies.access;
     noticeOwner(req, res, next);
 }
 
@@ -54,7 +54,7 @@ function noticeOwner(req, res, next){
     const notice = new Notice(req.params.path);
     authMiddleware(req, res, async () => {
         if(!req.user.noticeOwner(await notice.get())) 
-            return res.status(403).send('You are not the owner of ' + req.params.path);
+            return res.status(403).send("You are not the owner of " + req.params.path);
         req.notice = notice;
         next();
     });
