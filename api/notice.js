@@ -1,4 +1,5 @@
 const { existsSync, mkdirSync, readFileSync} = require('fs');
+const { connect } = require('mongoose');
 const { join } = require('path');
 const path = require('path');
 const db = require('../utils/db');
@@ -196,7 +197,10 @@ class News{
                 }
             }, ((err, newObj) => {
                 if(err)
-                    reject(err);
+                    return reject(err);
+
+                if(newObj === null)
+                    return reject(new NoticeNotFound(''));
                 const content = Buffer.from(readFileSync(path.join('news', `${this.path}.md`)));
                 resolve([newObj, content]);
             }));            
@@ -214,9 +218,9 @@ class News{
         return new Promise((resolve, reject) => {
             db.news.find({$or: [{path: this.path}, {title}]}, (err, doc) => {
                 if(err)
-                    reject(err);
+                    return reject(err);
                 if(doc.length > 0)
-                    reject(new NoticeAlreadyExists('New already exist. Try another title or path'));
+                    return reject(new NoticeAlreadyExists('New already exist. Try another title or path'));
             });
             db.news.findOne({}, '_id', (err, doc) => {
                 let id = 0;

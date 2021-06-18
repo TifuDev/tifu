@@ -49,8 +49,6 @@ app.route('/login')
 
 app.get('/new/:path', (req, res, next) => {
     const classMap = {
-            h1: 'my-2 text-2xl underline font-semibold',
-            p: 'my-2 font-light',
             strong: 'font-light',
             li: 'list-disc'
         },
@@ -65,10 +63,10 @@ app.get('/new/:path', (req, res, next) => {
             extensions: [bindings]
         });
     new notice.News(req.params.path).get()
-        .then((newObj, content) => {
-            res.render('notice', {
+        .then(([newObj, content]) => {
+            res.render('news', {
                 newObj,
-                content: converter.makeHtml(content)
+                content: converter.makeHtml(content.toString())
             });
         })
         .catch(err => next(err));
@@ -94,7 +92,7 @@ app.post('/editor', sec.cookieMiddleware, (req, res) => {
 
 app.get('/api/new/:path', (req, res, next) => {
     new notice.News(req.params.path).get()
-        .then((newObj, content) => res.json({data: newObj, content}))
+        .then(([newObj, content]) => res.json({data: newObj, content: content.toString()}))
         .catch(err => next(err));
 });
 

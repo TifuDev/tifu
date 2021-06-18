@@ -20,6 +20,9 @@
         },
         {
             "name": "News"
+        },
+        {
+            "name": "Person"
         }
     ],
     "paths": {
@@ -28,11 +31,11 @@
                 "tags": ["News catalog"],
                 "description": "Return JSON containing an array of news",
                 "operationId": "getCatalog",
-                "responses": {
+                "responses":{
                     "200": {
                         "description": "Catalog obtained",
                         "content": {
-                            "application/json":{
+                            "application/json": {
                                 "schema": {
                                     "$ref": "#/components/schema/Catalog"
                                 }
@@ -60,7 +63,7 @@
                     "200": {
                         "description": "New obtained",
                         "content": {
-                            "aplication/json": {
+                            "application/json": {
                                 "schema": {
                                     "$ref": "#/components/schema/New"
                                 }
@@ -197,6 +200,34 @@
                     }
                 }
             }
+        },
+        "/person/{username}":{
+            "get": {
+                "tags": ["Person"],
+                "description": "Return a Person Object",
+                "operationId": "getPerson",
+                "parameters": [{
+                    "in": "path",
+                    "name": "username",
+                    "required": true,
+                    "schema": {
+                        "type": "string"
+                    },
+                    "description": "Path for new"
+                }],
+                "responses":{
+                    "200": {
+                        "description": "New obtained",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schema/Person"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
         }
     },
     "components": {
@@ -208,7 +239,10 @@
         },
         "schema": {
             "Catalog": {
-                "type":"array"
+                "type":"array",
+                "items": {
+                    "$ref": "#/components/schema/New"
+                }
             },
             "New": {
                 "type": "object",
@@ -219,6 +253,35 @@
                             "_id": {
                                 "type": "integer"
                             },
+                            "author": {
+                                "$ref": "#/components/schema/Person"
+                            },
+                            "metadata": {
+                                "type": "object",
+                                "properties": {
+                                    "keywords": {
+                                        "type": "array",
+                                        "items": {
+                                            "type":"string"
+                                        }
+                                    },
+                                    "isBasedOn": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "inLanguage": {
+                                        "type": "string"
+                                    },
+                                    "thumbnailUrl": {
+                                        "type": "string"
+                                    },
+                                    "accessMode": {
+                                        "type" :"string"
+                                    }
+                                }
+                            },
                             "title": {
                                 "type": "string"
                             },
@@ -228,21 +291,63 @@
                             "path": {
                                 "type": "string"
                             },
-                            "author": {
-                                "type": "string"
-                            },
                             "date": {
-                                "type": "string"
+                                "type": "string",
+                                "format": "date"
+                            },
+                            "dateLastMod": {
+                                "type": "string",
+                                "format": "date"
                             },
                             "downloads": {
-                                "type": "integer"
-                            },
-                            "collectionId": {
                                 "type": "integer"
                             }
                         }
                     },
                     "content": {
+                        "type": "string"
+                    }
+                }
+            },
+            "Person": {
+                "type": "object",
+                "properties": {
+                    "details": {
+                        "type": "object",
+                        "properties": {
+                            "knowsLanguage": {
+                                "type": "array",
+                                "items": {
+                                    "type": "string"
+                                }
+                            },
+                            "profilePhotoUrl": {
+                                "type":"string"
+                            },
+                            "bio": {
+                                "type": "string"
+                            },
+                            "nationality": {
+                                "type": "string"
+                            },
+                            "gender": {
+                                "type": "integer"
+                            }
+                        }
+                    },
+                    "_id": {
+                        "type": "string"
+                    },
+                    "firstName": {
+                        "type": "string"
+                    },
+                    "familyName": {
+                        "type": "string"
+                    },
+                    "username": {
+                        "type": "string"
+                    },
+                    "email": {
                         "type": "string"
                     }
                 }
