@@ -24,6 +24,12 @@ Run this command when MongoDB service is running
 
 `echo 'VAR=<var>' >> .env`  
 
+## Create a secret to access token
+
+`echo ACCTOKEN_SECRET=$(openssl rand -base64 32) >> tifu/.env`
+
+The secret can not be shared in any circumstances. This key is used to make json web tokens 
+
 **docker-compose uses environment variables to load secrets**
 
 ## Access container

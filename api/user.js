@@ -51,7 +51,7 @@ class Person{
             }, (err, doc) => {
                 if(err)
                     reject(err);
-                if(doc === null)
+                if(doc !== null)
                     reject(new PersonalDataAlreadyUsed());
             });
             user.create(personObj, (err) => {
@@ -87,7 +87,7 @@ class Person{
                 token = sign({username}, process.env.ACCTOKEN_SECRET, {
                     expiresIn: process.env.ACCTOKEN_LIFE    
                 });
-                
+
                 resolve([token, doc]);
             });
         });
