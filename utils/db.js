@@ -1,6 +1,4 @@
 const mongoose = require('mongoose');
-const dbref = require("mongoose-dbref");
-var loaded = dbref.install(mongoose);
 
 const uri =
     `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PWD}@${process.env.DB_HOST}/${process.env.DB_NAME}?retryWrites=true&w=majority`;
