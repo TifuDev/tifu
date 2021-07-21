@@ -1,4 +1,6 @@
 const mongoose = require('mongoose');
+const dbref = require("mongoose-dbref");
+var loaded = dbref.install(mongoose);
 
 const uri =
     `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PWD}@${process.env.DB_HOST}/${process.env.DB_NAME}?retryWrites=true&w=majority`;
@@ -8,19 +10,7 @@ var news = mongoose.model('new', mongoose.Schema({
     title: String,
     desc: String,
     path: String,
-    author: {
-        firstName: String,
-        familyName: String,
-        username: String,
-        email: String,
-        details: {
-            profilePhotoUrl: String,
-            bio: String,
-            knowsLanguage: [String],
-            nationality: String,
-            gender: Number
-        }
-    },
+    author: mongoose.SchemaTypes.ObjectId,
     date: Date,
     dateLastmod: Date,
     downloads: Number,
@@ -30,7 +20,8 @@ var news = mongoose.model('new', mongoose.Schema({
         keywords: [String],
         accessMode: String,
         isBasedOn: [String]
-    }
+    },
+    content: String
 }, {
     versionKey: false
 }));

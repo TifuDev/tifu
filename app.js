@@ -2,7 +2,6 @@ const express = require("express"),
     notice = require("./api/notice"),
     compression = require("compression"),
     cookieParser = require("cookie-parser"),
-    showdown = require("showdown"),
     sec = require("./api/security"),
     upload = require("./api/upload"),
     path = require("path"),
@@ -23,94 +22,13 @@ app.set("view engine", "pug");
 app.set("views", "public/views");
 app.use(express.static("public"));
 
-app.use("/api/docs", swagger.serve, swagger.setup(JSON.parse(fs.readFileSync("./docs.json"))));
-
-app.use(function(req, res, next) {
-	  res.header("Access-Control-Allow-Origin", "*");
-	  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
-	  next();
-});
-
-app.get("/", (req, res) => {
-    res.render("index");
-});
-
-app.route("/login")
-    .get((req, res) => {
-        res.render("login");
-    })
-    .post((req, res) => {
-        new Person(req.body.username).login(req.body.passwd)
-            .then(([token, doc]) => {
-                res.cookie("access", token);
-                if (req.query.return_to)
-                    return res.redirect(req.query.return_to);
-                res.redirect('/');
-            })
-            .catch(() => {
-                res.render("login", {credential_not_valid: true});
-            });
-    });
-
-app.get("/new/:path", (req, res, next) => {
-    const classMap = {
-            strong: "font-light",
-            li: "list-disc"
-        },
-        bindings = Object.keys(classMap)
-        .map(key => ({
-            type: "output",
-            regex: new RegExp(`<${key}(.*)>`, "g"),
-            replace: `<${key} class="${classMap[key]}" $1>`
-        })),
-        converter = new showdown.Converter({
-            noHeaderId: true,
-            extensions: [bindings]
-        });
-    new notice.News(req.params.path).get()
-        .then(([newObj, content]) => {
-            res.render("news", {
-                newObj,
-                content: converter.makeHtml(content.toString())
-            });
-        })
-        .catch(err => next(err));
-});
-
-app.get("/editor", sec.cookieMiddleware, (req, res) => {
-    res.render("editor");
-});
-
-app.post("/editor", sec.cookieMiddleware, (req, res) => {
-    const body = req.body;
-    new notice.Notice(body.id).createPost(body.title, body.desc, req.user.username, body.content, function (err) {
-        if (err) {
-            if (err.name === "NoticeExists") {
-                return res.status(409).send("Notice already exists");
-            } else {
-                return res.status(500).send("An error occured!" + err);
-            }
-        }
-        res.send(`/new/${req.body.id}`);
-    });
-});
+app.use("/", swagger.serve, swagger.setup(JSON.parse(fs.readFileSync("./docs.json"))));
 
 app.get("/api/new/:path", (req, res, next) => {
     new notice.News(req.params.path).get()
-        .then(([newObj, content]) => res.json({data: newObj, content: content.toString()}))
+        .then(([newObj]) => res.json({newObj}))
         .catch(err => next(err));
 });
-
-// app.get("/new/:path/modify", sec.noticeOwnerCookie, (req, res) => {
-//     req.notice.get((err, notice) => {
-//         if(err) return res.status(404).send("Notice Not Found");
-//         res.render("modify", {
-//             title: notice.data.title,
-//             desc: notice.data.desc,
-//             content: notice.content
-//         });
-//     });
-// });
 
 app.post("/api/login", (req, res, next) => {
     new Person(req.body.username).login(req.body.password)
@@ -152,14 +70,6 @@ app.get("/api/catalog", (req, res) => {
         res.json(doc);
     }, filters, sort, limit);
 });
-
-// app.get("/api/new/:path/modify", sec.noticeOwner, (req, res) => {    
-//     if(req.body.title) req.notice.modifyNoticeTitle(req.body.title);
-//     if(req.body.desc) req.notice.modifyNoticeDesc(req.body.desc);
-//     if(req.body.content) req.notice.modifyNoticeContent(req.body.content);
-
-//     res.sendStatus(204);
-// });
 
 app.get("/api/upload/image", upload.handleBinary, (req, res) => {
     const type = 

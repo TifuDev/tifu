@@ -1,6 +1,4 @@
-const { existsSync, mkdirSync, readFileSync} = require("fs");
-const { connect } = require("mongoose");
-const { join } = require("path");
+const { existsSync, mkdirSync} = require("fs");
 const path = require("path");
 const db = require("../utils/db");
 const {Sitemap} = require("../utils/sitemap");
@@ -201,19 +199,12 @@ class News{
 
                 if(newObj === null)
                     return reject(new NoticeNotFound(""));
-                const content = Buffer.from(readFileSync(path.join("news", `${this.path}.md`)));
-                resolve([newObj, content]);
+                resolve([newObj]);
             }));            
         });
     }
-    write(title, content, desc, personObj, metadata){
-        const currentDate = new Date(),
-            sitemap = new Sitemap(join("public", "sitemap.xml")),
-            dir = "news",
-            file_path = join(dir, `${this.path}.md`);
-
-        sitemap.read();
-        sitemap.addUrlToSet(`${process.env.HOST}/news/${this.path}`, currentDate);
+    write(title, content, desc, personId, metadata){
+        const currentDate = new Date();
         
         return new Promise((resolve, reject) => {
             db.news.find({$or: [{path: this.path}, {title}]}, (err, doc) => {
@@ -221,36 +212,34 @@ class News{
                     return reject(err);
                 if(doc.length > 0)
                     return reject(new NoticeAlreadyExists("New already exist. Try another title or path"));
-            });
-            db.news.findOne({}, "_id", (err, doc) => {
-                let id = 0;
-                if(doc !== null)
-                    id = doc._id +1;
-                if(err)
-                    reject(err);
-                const newObj = {
-                    _id: id,
-                    title,
-                    desc,
-                    path: this.path,
-                    author: personObj,
-                    date: currentDate,
-                    dateLastmod: null,
-                    downloads: 0,
-                    metadata
-                };
-
-                db.news.create(newObj, err => {
+                db.news.findOne({}, "_id", (err, doc) => {
+                    let id = 0;
+                    if(doc !== null)
+                        id = doc._id +1;
                     if(err)
                         reject(err);
-                    if(!existsSync(dir)) mkdirSync(dir);
-                    require("fs").writeFileSync(file_path, content);
-                    sitemap.write();
-                  
-                    resolve(newObj);
-                });
+                    
+                    const newObj = {
+                        _id: id,
+                        author: personId,
+                        title: title,
+                        desc: desc,
+                        metadata: metadata,
+                        path: this.path,
+                        date: currentDate,
+                        dateLastmod: null,
+                        downloads: 0,
+                        content: content
+                    };
     
-            }).sort({_id: -1});
+                    db.news.create(newObj, err => {
+                        if(err)
+                            reject(err);
+                        resolve(newObj);
+                    });
+        
+                }).sort({_id: -1});
+            });
         });
     }
 }
