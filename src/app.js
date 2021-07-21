@@ -22,7 +22,7 @@ app.set("view engine", "pug");
 app.set("views", "public/views");
 app.use(express.static("public"));
 
-app.use("/", swagger.serve, swagger.setup(JSON.parse(fs.readFileSync("./docs.json"))));
+app.use("/docs", swagger.serve, swagger.setup(JSON.parse(fs.readFileSync(path.join("src", "docs.json")))));
 
 app.get("/api/new/:path", (req, res, next) => {
     new notice.News(req.params.path).get()

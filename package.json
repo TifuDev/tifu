@@ -1,10 +1,10 @@
 {
   "name": "tifu",
   "version": "1.1.1",
-  "description": "",
-  "main": "app.js",
+  "description": "Steps to configure a localhost to tifu",
+  "main": "src/app.js",
   "scripts": {
-    "start": "node app.js",
+    "start": "node src/app.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
@@ -28,5 +28,13 @@
     "swagger-ui-express": "^4.1.6",
     "tailwindcss": "^2.0.3",
     "xml2js": "^0.4.23"
-  }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/hytalo-bassi/tifu.git"
+  },
+  "bugs": {
+    "url": "https://github.com/hytalo-bassi/tifu/issues"
+  },
+  "homepage": "https://github.com/hytalo-bassi/tifu#readme"
 }
