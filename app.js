@@ -8,7 +8,7 @@ const express = require("express"),
     {Person} = require("./api/user"),
     swagger = require("swagger-ui-express"),
     fs = require("fs"),
-    port = 3000;
+    port = process.env.PORT || 3000;
 
 var app = express();
 app.use(compression());
