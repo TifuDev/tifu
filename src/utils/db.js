@@ -34,7 +34,7 @@ const userSchema = mongoose.Schema({
         bio: String,
         knowsLanguage: [String],
         nationality: String,
-        gender: Number //0 to not know 1 to male and 2 to female
+        gender: Number 
     },
     password: String
 }, {versionKey: false});
