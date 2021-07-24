@@ -1,6 +1,0 @@
-User-agent: *
-Disallow: /views/
-Disallow: /svg/
-Disallow: /style/
-Disallow: /js/
-Disallow: /fonts/

@@ -1,14 +1,6 @@
 const {user} = require("../utils/db"),
     {hashString} = require("../utils/hash"),
     {sign} = require("jsonwebtoken");
-class UsernameAlreadyUsed extends Error {
-    constructor(msg) {
-        if(msg === null)
-            msg = "Username already in use";
-        super(msg);
-        this.name = "UsernameAlreadyUsed";
-    }
-}
 
 class PersonalDataAlreadyUsed extends Error {
     constructor(msg){

@@ -1,30 +1,24 @@
 const express = require("express"),
     notice = require("./api/notice"),
-    compression = require("compression"),
-    cookieParser = require("cookie-parser"),
     sec = require("./api/security"),
-    upload = require("./api/upload"),
-    path = require("path"),
     {Person} = require("./api/user"),
     swagger = require("swagger-ui-express"),
-    fs = require("fs"),
     port = process.env.PORT || 3000;
 
 var app = express();
-app.use(compression());
 app.use(express.urlencoded({
     extended: false
 }));
 app.use(express.json());
-app.use(cookieParser());
 
-app.set("view engine", "pug");
-app.set("views", "public/views");
-app.use(express.static("public"));
 
-app.use("/docs", swagger.serve, swagger.setup(JSON.parse(fs.readFileSync(path.join("src", "docs.json")))));
+app.use("/docs", swagger.serve, swagger.setup(
+    JSON.parse(require("fs").readFileSync(
+        require("path").join("src", "docs.json")
+    )))
+);
 
-app.get("/api/new/:path", (req, res, next) => {
+app.get("/new/:path", (req, res, next) => {
     new notice.News(req.params.path).get()
         .then(([newObj]) => res.json({newObj}))
         .catch(err => next(err));
@@ -32,7 +26,7 @@ app.get("/api/new/:path", (req, res, next) => {
 
 app.post("/api/login", (req, res, next) => {
     new Person(req.body.username).login(req.body.password)
-        .then(([token, doc]) => {
+        .then(([token]) => {
             res.json(token);
         })
         .catch(err => next(err));
@@ -45,7 +39,7 @@ app.get("/api/new/:path/remove", sec.noticeOwner, (req, res) => {
     });
 });
 
-app.get("/api/catalog", (req, res) => {
+app.get("/catalog", (req, res) => {
     let filters = {},
         limit = 0,
         sort = {};
@@ -69,23 +63,7 @@ app.get("/api/catalog", (req, res) => {
         if (err) return res.status(500);
         res.json(doc);
     }, filters, sort, limit);
-});
-
-app.get("/api/upload/image", upload.handleBinary, (req, res) => {
-    const type = 
-        /image\/(.*)/.exec(req.headers["content-type"])[1];
-    if(["jpeg", "jpg"].indexOf(type) === -1) 
-        return res.send("File extension not allowed");
-    upload.storeBinary(req.rawBody, "jpg", path.join("public", "uploads", "images"),
-        (err, file_name) => {
-            if(err) return res.status(500).send("An error occured! "+ err);
-            res.json({
-                message: "Success",
-                file_name: file_name
-            });
-        }
-    );
-});
+})
 
 app.get("/api/new/:path/write", sec.authMiddleware, (req, res, next) => {
     const body = req.body;
