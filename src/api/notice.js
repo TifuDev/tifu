@@ -6,6 +6,8 @@ const {Sitemap} = require("../utils/sitemap");
 class NoticeAlreadyExists extends Error {
     constructor(msg) {
         super(msg);
+        if(msg === null)
+            this.msg = "Notice Already exists!"
         this.name = "NoticeExists";
     }
 }
@@ -187,6 +189,7 @@ class News{
     constructor(path){
         this.path = path;
     }
+
     get(){
         return new Promise((resolve, reject) => {
             db.news.findOneAndUpdate({path: this.path}, {
@@ -198,39 +201,40 @@ class News{
                     return reject(err);
 
                 if(newObj === null)
-                    return reject(new NoticeNotFound(""));
+                    return reject(new NoticeNotFound());
                 resolve([newObj]);
             }));            
         });
     }
-    write(title, content, desc, personId, metadata){
+
+    write(title, content, desc, personId, metadata) {
         const currentDate = new Date();
         
+        let newObj = {
+            _id: 0,
+            title,
+            desc,
+            path: this.path,
+            author: personId,
+            date: currentDate,
+            dateLastmod: null,
+            downloads: 0,
+            metadata: metadata,
+            content
+        };
+
         return new Promise((resolve, reject) => {
             db.news.find({$or: [{path: this.path}, {title}]}, (err, doc) => {
                 if(err)
                     return reject(err);
                 if(doc.length > 0)
-                    return reject(new NoticeAlreadyExists("New already exist. Try another title or path"));
+                    return reject(new NoticeAlreadyExists());
+
                 db.news.findOne({}, "_id", (err, doc) => {
-                    let id = 0;
                     if(doc !== null)
-                        id = doc._id +1;
+                        newObj._id = doc._id +1
                     if(err)
                         reject(err);
-                    
-                    const newObj = {
-                        _id: id,
-                        author: personId,
-                        title: title,
-                        desc: desc,
-                        metadata: metadata,
-                        path: this.path,
-                        date: currentDate,
-                        dateLastmod: null,
-                        downloads: 0,
-                        content: content
-                    };
     
                     db.news.create(newObj, err => {
                         if(err)
@@ -239,6 +243,18 @@ class News{
                     });
         
                 }).sort({_id: -1});
+            });
+        });
+    }
+
+    remove() {
+        return new Promise((resolve, reject) => {
+            db.news.remove({
+                path: this.path
+            }, err => {
+                if(err)
+                    return reject(err)
+                resolve()
             });
         });
     }

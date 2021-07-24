@@ -29,18 +29,9 @@ async function authMiddleware(req, res, next){
     });
 }
 
-function cookieMiddleware(req, res, next){
-    req.headers.authorization = "Bearer " + req.cookies.access;
-    authMiddleware(req, res, next);
-}
-
-function noticeOwnerCookie(req, res, next){
-    req.headers.authorization = "Bearer " + req.cookies.access;
-    noticeOwner(req, res, next);
-}
-
 function noticeOwner(req, res, next){
     const notice = new Notice(req.params.path);
+    
     authMiddleware(req, res, async () => {
         if(!req.user.noticeOwner(await notice.get())) 
             return res.status(403).send("You are not the owner of " + req.params.path);
@@ -49,4 +40,4 @@ function noticeOwner(req, res, next){
     });
 }
 
-module.exports = {authMiddleware, noticeOwner, cookieMiddleware, noticeOwnerCookie};
+module.exports = {authMiddleware, noticeOwner};

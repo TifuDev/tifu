@@ -24,7 +24,7 @@ app.get("/new/:path", (req, res, next) => {
         .catch(err => next(err));
 });
 
-app.post("/api/login", (req, res, next) => {
+app.post("/login", (req, res, next) => {
     new Person(req.body.username).login(req.body.password)
         .then(([token]) => {
             res.json(token);
@@ -32,7 +32,7 @@ app.post("/api/login", (req, res, next) => {
         .catch(err => next(err));
 });
 
-app.get("/api/new/:path/remove", sec.noticeOwner, (req, res) => {
+app.get("/new/:path/remove", sec.noticeOwner, (req, res) => {
     req.notice.remove(err => {
         if(err) return res.status(500).send("An error occurred! " + err);
         res.status(204);
@@ -65,7 +65,7 @@ app.get("/catalog", (req, res) => {
     }, filters, sort, limit);
 })
 
-app.get("/api/new/:path/write", sec.authMiddleware, (req, res, next) => {
+app.get("/new/:path/write", sec.authMiddleware, (req, res, next) => {
     const body = req.body;
     req.person.get()
         .then((person) => {
@@ -81,7 +81,7 @@ app.get("/api/new/:path/write", sec.authMiddleware, (req, res, next) => {
         .catch(err => next(err));
 });
 
-app.get("/api/person/:username", (req, res, next) => {
+app.get("/person/:username", (req, res, next) => {
     const person = new Person(req.params.username);
     person.get()
         .then(person => {
