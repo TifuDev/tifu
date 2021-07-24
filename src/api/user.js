@@ -2,24 +2,6 @@ const { sign } = require('jsonwebtoken');
 const { user, news } = require('../utils/db');
 const { hashString } = require('../utils/hash');
 
-// class PersonalDataAlreadyUsed extends Error {
-//     constructor(msg){
-//         if(msg === null)
-//             msg = 'Username already in use';
-//         super(msg);
-//         this.name = 'PersonalDataAlreadyUsed';
-//     }
-// }
-
-// class UsernameOrPasswordWrong extends Error{
-//     constructor(msg){
-//         if(msg === null)
-//             msg = 'Username or password wrong';
-//         super(msg);
-//         this.name = 'UserNotFound';
-//     }
-// }
-
 class Person {
   constructor(username) {
     this.username = username;
@@ -60,6 +42,7 @@ class Person {
     return new Promise((resolve, reject) => {
       user.findOne({ username: this.username }, (err, doc) => {
         if (err) return reject(err);
+        if (doc === null) return reject(new Error('User not found!'))
 
         return resolve(doc);
       });
