@@ -1,3 +1,4 @@
+const { body, validationResult, param } = require('express-validator');
 const express = require('express');
 const swagger = require('swagger-ui-express');
 const notice = require('./api/notice');
@@ -18,25 +19,41 @@ app.use('/docs', swagger.serve, swagger.setup(
   )),
 ));
 
-app.get('/new/:path', (req, res, next) => {
-  new notice.News(req.params.path).get()
-    .then(([newObj]) => res.json({ newObj }))
-    .catch((err) => next(err));
-});
+app.get('/new/:path',
+  param('path').isAscii(),
+  (req, res, next) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) return res.status(400).json({ errors: errors.array() });
 
-app.post('/login', (req, res, next) => {
-  new Person(req.body.username).login(req.body.password)
-    .then(([token]) => {
-      res.json(token);
-    })
-    .catch((err) => next(err));
-});
+    new notice.News(req.params.path).get()
+      .then(([newObj]) => res.json({ newObj }))
+      .catch((err) => next(err));
+  });
 
-app.get('/new/:path/remove', sec.noticeOwner, (req, res) => {
-  req.newObj.remove()
-    .then(res.sendStatus(204))
-    .catch((err) => res.status(500).send(err));
-});
+app.post('/login',
+  body('username').isAscii(),
+  body('password').isLength({ min: 4 }),
+  (req, res, next) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) return res.status(400).json({ errors: errors.array() });
+
+    return new Person(req.body.username).login(req.body.password)
+      .then(([token]) => {
+        res.json(token);
+      })
+      .catch((err) => next(err));
+  });
+
+app.get('/new/:path/remove',
+  param('path').isAscii(),
+  sec.noticeOwner, (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) return res.status(400).json({ errors: errors.array() });
+
+    return req.newObj.remove()
+      .then(res.sendStatus(204))
+      .catch((err) => res.status(500).send(err));
+  });
 
 app.get('/catalog', (req, res) => {
   let filters = {};
@@ -57,33 +74,46 @@ app.get('/catalog', (req, res) => {
   }, filters, sort, limit);
 });
 
-app.get('/new/:path/write', sec.authMiddleware, (req, res, next) => {
-  const { body } = req;
-  req.person.get()
-    .then((person) => {
-      new notice.News(req.params.path).write(
-        body.title,
-        body.content,
-        body.desc,
-        person,
-        body.metadata,
-      )
-        .then((newObj) => res.json(newObj))
-        .catch((err) => next(err));
-    })
-    .catch((err) => next(err));
-});
+app.get('/new/:path/write',
+  body('title').not().isEmpty(),
+  body('content').not().isEmpty(),
+  body('desc').not().isEmpty().isLength({ min: 12, max: 256 }),
+  body('metadata').isJSON(),
+  sec.authMiddleware, (req, res, next) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) return res.status(400).json({ errors: errors.array() });
 
-app.get('/person/:username', (req, res, next) => {
-  const person = new Person(req.params.username);
-  person.get()
-    .then((obj) => {
-      res.send(obj);
-    })
-    .catch((err) => {
-      next(err);
-    });
-});
+    const { body } = req;
+    return req.person.get()
+      .then((person) => {
+        new notice.News(req.params.path).write(
+          body.title,
+          body.content,
+          body.desc,
+          person,
+          body.metadata,
+        )
+          .then((newObj) => res.json(newObj))
+          .catch((err) => next(err));
+      })
+      .catch((err) => next(err));
+  });
+
+app.get('/person/:username',
+  param('username').isAscii(),
+  (req, res, next) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) return res.status(400).json({ errors: errors.array() });
+
+    const person = new Person(req.params.username);
+    return person.get()
+      .then((obj) => {
+        res.send(obj);
+      })
+      .catch((err) => {
+        next(err);
+      });
+  });
 
 app.use((req, res) => {
   res.status(404).send('Unable to find the requested resource!');

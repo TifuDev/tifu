@@ -20,7 +20,7 @@
       "group": "build",
       "presentation": {
         "reveal": "always",
-        "panel": "new",
+        "panel": "new"
       }
     },
     {
@@ -30,7 +30,7 @@
       "group": "none",
       "presentation": {
         "reveal": "always",
-        "panel": "new",
+        "panel": "new"
       }
     }
   ]
