@@ -1,3 +1,4 @@
+require('dotenv').config();
 const { body, validationResult, param } = require('express-validator');
 const express = require('express');
 const swagger = require('swagger-ui-express');
@@ -25,7 +26,7 @@ app.get('/new/:path',
     const errors = validationResult(req);
     if (!errors.isEmpty()) return res.status(400).json({ errors: errors.array() });
 
-    new notice.News(req.params.path).get()
+    return new notice.News(req.params.path).get()
       .then(([newObj]) => res.json({ newObj }))
       .catch((err) => next(err));
   });
@@ -119,4 +120,5 @@ app.use((req, res) => {
   res.status(404).send('Unable to find the requested resource!');
 });
 
+// eslint-disable-next-line no-console
 app.listen(port, console.info(`Server on localhost:${port}`));

@@ -5,8 +5,8 @@
   "tasks": [
     {
       "label": "Run tests",
-      "type": "shell",
-      "command": "npm run test",
+      "type": "npm",
+      "script": "test",
       "group": "test",
       "presentation": {
         "reveal": "always",
@@ -15,8 +15,8 @@
     },
     {
       "label": "Start",
-      "type": "shell",
-      "command": "npm start",
+      "type": "npm",
+      "script": "start",
       "group": "build",
       "presentation": {
         "reveal": "always",
@@ -25,8 +25,8 @@
     },
     {
       "label": "Lint",
-      "type": "shell",
-      "command": "npm run lint",
+      "type": "npm",
+      "script": "lint",
       "group": "none",
       "presentation": {
         "reveal": "always",
