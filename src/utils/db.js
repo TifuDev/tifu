@@ -1,6 +1,17 @@
 const mongoose = require('mongoose');
 
-const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PWD}@${process.env.DB_HOST}/${process.env.DB_NAME}?retryWrites=true&w=majority`;
+const {
+  DB_USER,
+  DB_PWD,
+  DB_HOST,
+  DB_PORT,
+  DB_NAME,
+} = process.env;
+
+let uri = `mongodb+srv://${DB_USER}:${DB_PWD}@${DB_HOST}/${DB_NAME}?retryWrites=true&w=majority`;
+if (process.env.STANDARD_CONNECTION) {
+  uri = `mongodb//${DB_USER}:${DB_PWD}@${DB_HOST}:${DB_PORT}/${DB_NAME}?retryWrites=true&w=majority`;
+}
 
 const news = mongoose.model('new', mongoose.Schema({
   _id: Number,
