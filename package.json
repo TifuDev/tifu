@@ -8,6 +8,9 @@
     "test": "jest",
     "lint": "eslint src/"
   },
+  "jest": {
+    "globalSetup": "./scripts/jest/globalSetup.js"
+  },
   "author": "",
   "license": "ISC",
   "dependencies": {
