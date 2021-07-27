@@ -10,7 +10,7 @@ const {
 
 let uri = `mongodb+srv://${DB_USER}:${DB_PWD}@${DB_HOST}/${DB_NAME}?retryWrites=true&w=majority`;
 if (process.env.STANDARD_CONNECTION) {
-  uri = `mongodb//${DB_USER}:${DB_PWD}@${DB_HOST}:${DB_PORT}/${DB_NAME}?retryWrites=true&w=majority`;
+  uri = `mongodb://${DB_USER}:${DB_PWD}@${DB_HOST}:${DB_PORT}/${DB_NAME}`;
 }
 
 const news = mongoose.model('new', mongoose.Schema({

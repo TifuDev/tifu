@@ -84,15 +84,21 @@ app.get('/new/:path/write',
     const errors = validationResult(req);
     if (!errors.isEmpty()) return res.status(400).json({ errors: errors.array() });
 
-    const { body } = req;
+    const {
+      title,
+      content,
+      desc,
+      metadata,
+    } = req.body;
+
     return req.person.get()
       .then((person) => {
         new notice.News(req.params.path).write(
-          body.title,
-          body.content,
-          body.desc,
+          title,
+          content,
+          desc,
           person,
-          body.metadata,
+          metadata,
         )
           .then((newObj) => res.json(newObj))
           .catch((err) => next(err));
