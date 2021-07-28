@@ -1,6 +1,6 @@
 FROM node:latest
-WORKDIR /
-COPY . .
+WORKDIR /home/node/tifu
+COPY . /home/node/tifu/.
 RUN npm install
 EXPOSE 3000
-CMD ["node", "app.js" ]
+CMD ["npm", "start" ]

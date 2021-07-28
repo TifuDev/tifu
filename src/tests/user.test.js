@@ -1,9 +1,9 @@
-const { mongoose } = require('../utils/db') 
+const { mongoose } = require('../utils/db')
 const { Person } = require('../api/user')
 
 const personObj = new Person("hytalo-bassi") // Change the username to your need
 
-const ownerOf = "abc" // Change the path to your need
+const ownerOf = "test" // Change the path to your need
 const notOwnerOf = "some-randomic-username"
 
 const personNotFound = new Person("some-randomic-username")

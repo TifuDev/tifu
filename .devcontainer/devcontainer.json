@@ -1,0 +1,22 @@
+{
+  "name": "Tifu API",
+  "dockerComposeFile": "../docker-compose.yml",
+  "service": "web",
+  "forwardPorts": [3000, 27017],
+  "workspaceFolder": "/home/node/tifu",
+  "portsAttributes": {
+    "3000": {
+      "label": "API",
+      "onAutoForward": "notify"
+    },
+    "27017": {
+      "label": "Mongo database",
+      "onAutoForward": "silent"
+    }
+  },
+  "remoteUser": "node",
+  "extensions": [
+    "dbaeumer.vscode-eslint",
+    "EditorConfig.EditorConfig"
+  ]
+}

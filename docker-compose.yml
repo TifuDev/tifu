@@ -1,4 +1,4 @@
-version: "3.9"
+version: "3.8"
 services:
     mongo:
         image: mongo:latest
@@ -6,16 +6,20 @@ services:
             - "27017:27017"
         restart: always
         command: [mongod]
+        environment:
+          - MONGO_INITDB_ROOT_USERNAME=${DB_USER}
+          - MONGO_INITDB_ROOT_PASSWORD=${DB_PWD}
     web:
         build: .
-        ports: 
+        volumes:
+          - web:/home/node/tifu
+        ports:
             - "3000:3000"
         restart: always
-        environment:
-            - DB_HOST=${DB_HOST}
-            - DB_USER=${DB_USER}
-            - DB_PWD=${DB_PWD}
-            - DB_NAME=${DB_NAME}
-            - ACCTOKEN_SECRET=${ACCTOKEN_SECRET}
-            - ACCTOKEN_LIFE=${ACCTOKEN_LIFE}
-            
+        env_file:
+          - .env.test
+        links:
+          - mongo
+volumes:
+  web:
+
