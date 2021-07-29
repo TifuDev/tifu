@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const { createHash } = require('crypto');
 
 const {
   DB_USER,
@@ -49,6 +50,13 @@ const userSchema = mongoose.Schema({
 
 userSchema.post('findOne', (person) => {
   if (person !== null) delete person._doc.password;
+});
+
+userSchema.post('save', (person) => {
+  // eslint-disable-next-line no-param-reassign
+  person.password = createHash('sha256')
+    .update(person.password)
+    .digest('hex');
 });
 
 const user = mongoose.model('user', userSchema);

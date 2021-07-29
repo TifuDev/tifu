@@ -18,6 +18,8 @@ services:
         restart: always
         env_file:
           - .env.test
+        environment:
+          - DB_HOST=mongo
         links:
           - mongo
 volumes:

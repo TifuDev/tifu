@@ -1,32 +1,18 @@
 const { mongoose } = require('../utils/db')
 const { Person } = require('../api/user')
 
-const personObj = new Person("hytalo-bassi") // Change the username to your need
+const personObj = new Person("username")
+const details = { profilePhotoUrl: null, bio: 'Biograph', nationality: 'us', gender: 0 }
 
-const ownerOf = "test" // Change the path to your need
-const notOwnerOf = "some-randomic-username"
+it('should create a user', () =>
+  expect(personObj.create('First Name', 'Family Name', 'example@domain.com', details, 'password1234'))
+      .resolves.not.toBeNull());
 
-const personNotFound = new Person("some-randomic-username")
+it('should return a user', () => expect(personObj.get()).resolves.not.toBeNull());
 
-describe("Possible user responses", () => {
-  test("Normal request to user response", () => {
-    return expect(personObj.get()).resolves.not.toBe(null)
-  })
-
-  test("Request to not found user response", () => {
-    return expect(personNotFound.get()).rejects.toStrictEqual(Error('User not found!'))
-  })
-
-  test("User is owner of new response", () => {
-    return expect(personObj.isOwnerOf(ownerOf)).resolves.toBe(true);
-  })
-
-  test("User is not owner of new response", () => {
-    return expect(personObj.isOwnerOf(notOwnerOf)).resolves.toBe(false);
-  })
-})
+it('should remove a user', () => expect(personObj.remove()).resolves.toBeNull());
 
 afterAll(done => {
   mongoose.connection.close()
   done()
-})
+});

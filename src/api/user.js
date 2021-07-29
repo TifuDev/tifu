@@ -8,41 +8,35 @@ class Person {
   }
 
   create(firstName, familyName, email, details, password) {
-    const hashedPwd = hashString(password);
     const personObj = {
       firstName,
       familyName,
       username: this.username,
       email,
       details,
-      password: hashedPwd,
+      password,
     };
 
-    return new Promise((resolve, reject) => {
-      user.findOne({
-        $or: [
-          { username: this.username }, { firstName, familyName }, { email },
-        ],
-      }, (err, doc) => {
+    return new Promise((resolve, reject) => user.findOne(
+      { $or: [{ username: this.username }, { firstName, familyName }, { email }] },
+      (err, doc) => {
         if (err) return reject(err);
         if (doc !== null) return reject(new Error('Personal data already in use'));
 
-        return null;
-      });
+        return user.create(personObj, (createErr) => {
+          if (createErr) return reject(createErr);
 
-      user.create(personObj, (err) => {
-        if (err) return reject(err);
-
-        return resolve(personObj);
-      });
-    });
+          return resolve(personObj);
+        });
+      },
+    ));
   }
 
   get() {
     return new Promise((resolve, reject) => {
       user.findOne({ username: this.username }, (err, doc) => {
         if (err) return reject(err);
-        if (doc === null) return reject(new Error('User not found!'))
+        if (doc === null) return reject(new Error('User not found!'));
 
         return resolve(doc);
       });
@@ -91,12 +85,24 @@ class Person {
         if (err) return reject(err);
         if (doc === null) return reject(new Error('Username not found'));
 
-        news.findOne({ path, author: doc._id }, (err, doc) => {
-          if (err) return reject(err);
-          if (doc === null) return resolve(false);
+        // eslint-disable-next-line no-underscore-dangle
+        return news.findOne({ path, author: doc._id }, (newErr, newObj) => {
+          if (newErr) return reject(newErr);
+          if (newObj === null) return resolve(false);
 
           return resolve(true);
         });
+      });
+    });
+  }
+
+  remove() {
+    return new Promise((resolve, reject) => {
+      user.deleteOne({ username: this.username }, (err, deletedCount) => {
+        if (err) return reject(err);
+        if (deletedCount === 0) return reject(new Error('User not found!'));
+
+        return resolve(null);
       });
     });
   }

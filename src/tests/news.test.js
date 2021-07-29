@@ -1,24 +1,24 @@
 const { mongoose } = require('../utils/db')
-const { News, seeCatalog } = require('../api/notice')
+const { News } = require('../api/notice')
 
-const newObj = new News('test') // Change the path parameter to your need
-const newNotFound = new News('some-randomic-path')
+const newObj = new News('test');
+const personId = '507f1f77bcf86cd799439011';
+const metadata = {
+  inLanguage: 'en-us',
+  accessMode: 'textual',
+  thumbnailUrl: null,
+  keywords: ['keyword']
+}
 
-describe('Possible new responses', () => {
-  test('Normal request to new response', () => {
-    return expect(newObj.get()).resolves.not.toBe(null)
-  })
+it('should write the new', () =>
+  expect(newObj.write('Title', '# Content', 'Description', personId, metadata))
+    .resolves.not.toBeNull());
 
-  test('Request to not existent new response', () => {
-    return expect(newNotFound.get()).rejects.toStrictEqual(Error('New not found!'))
-  })
-})
+it('should return the new', () => expect(newObj.get()).resolves.not.toBeNull());
 
-test('Catalog response have more than 0 elements', () => {
-  return expect(seeCatalog()).resolves.not.toBe([])
-})
+it('should remove the new', () => expect(newObj.remove()).resolves.toBeUndefined());
 
 afterAll(done => {
   mongoose.connection.close()
   done()
-})
+});
