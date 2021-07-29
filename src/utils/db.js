@@ -52,11 +52,12 @@ userSchema.post('findOne', (person) => {
   if (person !== null) delete person._doc.password;
 });
 
-userSchema.post('save', (person) => {
-  // eslint-disable-next-line no-param-reassign
-  person.password = createHash('sha256')
-    .update(person.password)
-    .digest('hex');
+userSchema.pre('save', function (next) {
+  if (this.password && this.isModified('password')) {
+    this.password = createHash('sha256').update(this.password).digest('hex');
+  }
+
+  next();
 });
 
 const user = mongoose.model('user', userSchema);
