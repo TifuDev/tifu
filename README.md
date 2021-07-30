@@ -56,5 +56,5 @@ For this process we make use of the [ESLint](https://eslint.org/) tool.
 
 #### Testing
 
-The tests will make you have sure your codes will not break another components or features. You MUST test after linting your code and commiting them. 
+The tests will make you have sure your codes will not break another components or features. You MUST test after linting your code and before commiting them. 
 Making new tests are RECOMMENDED to guarantee the software works. The testing tool we are using is [Jest](https://jestjs.io/)
