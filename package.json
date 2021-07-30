@@ -1,12 +1,17 @@
 {
   "name": "tifu",
-  "version": "1.1.4",
+  "version": "1.2.1",
   "description": "Steps to configure a localhost to tifu",
   "main": "src/app.js",
   "scripts": {
     "start": "node src/app.js",
     "test": "jest --runInBand",
-    "lint": "eslint src/"
+    "lint": "eslint src/",
+    "prepare": "husky install",
+    "release": "standard-version",
+    "release:minor": "standard-version --release-as minor",
+    "release:patch": "standard-version --release-as patch",
+    "release:major": "standard-version --release-as major"
   },
   "jest": {
     "globalSetup": "./scripts/jest/globalSetup.js"
@@ -14,25 +19,23 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "compression": "^1.7.4",
-    "cookie-parser": "^1.4.5",
+    "@commitlint/cli": "^13.1.0",
+    "@commitlint/config-conventional": "^13.1.0",
+    "commitlint": "^13.1.0",
     "dotenv": "^10.0.0",
     "express": "^4.17.1",
     "express-validator": "^6.12.1",
-    "jshint": "^2.12.0",
     "jsonwebtoken": "^8.5.1",
-    "mongoose": "^5.12.3",
-    "swagger-ui-express": "^4.1.6",
-    "uuid": "^8.3.2"
+    "mongoose": "^5.13.4",
+    "swagger-ui-express": "^4.1.6"
   },
   "devDependencies": {
-    "autoprefixer": "^10.2.4",
     "eslint": "^7.31.0",
     "eslint-config-airbnb-base": "^14.2.1",
     "eslint-plugin-import": "^2.23.4",
+    "husky": "^7.0.0",
     "jest": "^27.0.6",
-    "request": "^2.88.2",
-    "xml2js": "^0.4.23"
+    "standard-version": "^9.3.1"
   },
   "repository": {
     "type": "git",
