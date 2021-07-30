@@ -47,7 +47,7 @@ So, to avoid this problem, heres the guidelines to use git.
 
 [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0-beta.2/#specification) is a specification about how you will commit new versions of the software.
 
-[Keep a Changeloh](https://keepachangelog.com/en/1.0.0/) is why you MUST have changelogs about your software. 
+[Keep a Changelog](https://keepachangelog.com/en/1.0.0/) is why you MUST have changelogs about your software. 
 
 #### Linting
 
