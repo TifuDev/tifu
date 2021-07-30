@@ -41,13 +41,15 @@ The secret can not be shared in any circumstances. This key is used to make json
 #### Git Strategies
 
 Git is powerfull tool when talking about versioning. But, the bad usage of git can make too hard the developing process. 
-So, to avoid this problem, heres the guidelines to use git.
+So, to avoid this problem, heres the guidelines to use git. 
 
 [SemVer](https://semver.org/) is a Semantic Versioning Specification. You SHOULD read the specification when pulling new versions of the software
 
 [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0-beta.2/#specification) is a specification about how you will commit new versions of the software.
 
 [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) is why you MUST have changelogs about your software. 
+
+The branch master is the most important branch in all project. This branch afect all production and you SHOULD NOT pull your code directly to master. Follow SemVer specification and create a new branch with the version.
 
 #### Linting
 
