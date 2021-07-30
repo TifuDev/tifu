@@ -1,24 +1,48 @@
 {
   "name": "tifu",
-  "version": "1.0.0",
-  "description": "",
-  "main": "app.js",
+  "version": "1.1.6",
+  "description": "Steps to configure a localhost to tifu",
+  "main": "src/app.js",
   "scripts": {
-    "start": "node app.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node src/app.js",
+    "test": "jest --runInBand",
+    "lint": "eslint src/",
+    "prepare": "husky install",
+    "release": "standard-version",
+    "release:minor": "standard-version --release-as minor",
+    "release:patch": "standard-version --release-as patch",
+    "release:major": "standard-version --release-as major"
+  },
+  "jest": {
+    "globalSetup": "./scripts/jest/globalSetup.js"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "dotenv": "^8.2.0",
+    "@commitlint/cli": "^13.1.0",
+    "@commitlint/config-conventional": "^13.1.0",
+    "commitlint": "^13.1.0",
+    "dotenv": "^10.0.0",
     "express": "^4.17.1",
+    "express-validator": "^6.12.1",
     "jsonwebtoken": "^8.5.1",
-    "pug": "^3.0.0"
+    "mongoose": "^5.13.4",
+    "swagger-ui-express": "^4.1.6"
   },
   "devDependencies": {
-    "autoprefixer": "^10.2.4",
-    "mongoose": "^5.11.17",
-    "postcss": "^8.2.6",
-    "tailwindcss": "^2.0.3"
-  }
+    "eslint": "^7.31.0",
+    "eslint-config-airbnb-base": "^14.2.1",
+    "eslint-plugin-import": "^2.23.4",
+    "husky": "^7.0.0",
+    "jest": "^27.0.6",
+    "standard-version": "^9.3.1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/hytalo-bassi/tifu.git"
+  },
+  "bugs": {
+    "url": "https://github.com/hytalo-bassi/tifu/issues"
+  },
+  "homepage": "https://github.com/hytalo-bassi/tifu#readme"
 }

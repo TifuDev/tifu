@@ -1,0 +1,27 @@
+version: "3.8"
+services:
+    mongo:
+        image: mongo:latest
+        ports:
+            - "27017:27017"
+        restart: always
+        command: [mongod]
+        environment:
+          - MONGO_INITDB_ROOT_USERNAME=${DB_USER}
+          - MONGO_INITDB_ROOT_PASSWORD=${DB_PWD}
+    web:
+        build: .
+        volumes:
+          - web:/home/node/tifu
+        ports:
+            - "3000:3000"
+        restart: always
+        env_file:
+          - .env.test
+        environment:
+          - DB_HOST=mongo
+        links:
+          - mongo
+volumes:
+  web:
+
