@@ -2,6 +2,7 @@ require('dotenv').config();
 const { body, validationResult, param } = require('express-validator');
 const express = require('express');
 const swagger = require('swagger-ui-express');
+const cors = require('cors');
 const notice = require('./api/notice');
 const sec = require('./api/security');
 const { Person } = require('./api/user');
@@ -19,6 +20,8 @@ app.use('/docs', swagger.serve, swagger.setup(
     require('path').join('src', 'docs.json'),
   )),
 ));
+
+app.use(cors());
 
 app.get('/new/:path',
   param('path').isAscii(),
