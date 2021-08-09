@@ -8,6 +8,12 @@ The format of changelog is based in [Keep a Changelog](https://keepachangelog.co
 
 Modifications not released will be documented here
 
+## 1.2.0 | 2021-08-09 Hytalo M. Bassi
+
+#### Added
+
+- static method getById
+
 ## 1.1.6 | 2021-08-09 Hytalo M. Bassi
 
 #### Added
