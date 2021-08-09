@@ -13,3 +13,9 @@ Modifications not released will be documented here
 #### Added
 
 - cors
+
+#### Removed
+
+- .husky folder
+- commitlint files
+- standard-version dependency

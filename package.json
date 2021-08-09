@@ -6,12 +6,7 @@
   "scripts": {
     "start": "node src/app.js",
     "test": "jest --runInBand",
-    "lint": "eslint src/",
-    "prepare": "husky install",
-    "release": "standard-version",
-    "release:minor": "standard-version --release-as minor",
-    "release:patch": "standard-version --release-as patch",
-    "release:major": "standard-version --release-as major"
+    "lint": "eslint src/"
   },
   "jest": {
     "globalSetup": "./scripts/jest/globalSetup.js"
@@ -19,24 +14,19 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@commitlint/cli": "^13.1.0",
-    "@commitlint/config-conventional": "^13.1.0",
-    "commitlint": "^13.1.0",
     "cors": "^2.8.5",
     "dotenv": "^10.0.0",
     "express": "^4.17.1",
     "express-validator": "^6.12.1",
     "jsonwebtoken": "^8.5.1",
-    "mongoose": "^5.13.4",
+    "mongoose": "^5.13.5",
     "swagger-ui-express": "^4.1.6"
   },
   "devDependencies": {
-    "eslint": "^7.31.0",
+    "eslint": "^7.32.0",
     "eslint-config-airbnb-base": "^14.2.1",
-    "eslint-plugin-import": "^2.23.4",
-    "husky": "^7.0.0",
-    "jest": "^27.0.6",
-    "standard-version": "^9.3.1"
+    "eslint-plugin-import": "^2.24.0",
+    "jest": "^27.0.6"
   },
   "repository": {
     "type": "git",
