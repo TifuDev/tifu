@@ -36,8 +36,8 @@ class Person {
     return new Promise((resolve, reject) => {
       user.findOne({ _id: id }, (err, doc) => {
         if (err) return reject(err);
-        // eslint-disable-next-line no-console
-        console.log(doc);
+        if (doc === null) return reject(new Error('User not found'));
+
         return resolve(new Person(doc.username));
       });
     });
