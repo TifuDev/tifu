@@ -32,6 +32,17 @@ class Person {
     ));
   }
 
+  static getById(id) {
+    return new Promise((resolve, reject) => {
+      user.findOne({ _id: id }, (err, doc) => {
+        if (err) return reject(err);
+        if (doc === null) return reject(new Error('User not found'));
+
+        return resolve(new Person(doc.username));
+      });
+    });
+  }
+
   get() {
     return new Promise((resolve, reject) => {
       user.findOne({ username: this.username }, (err, doc) => {

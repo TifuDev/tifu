@@ -1,5 +1,5 @@
 require('dotenv').config();
-const { body, validationResult, param } = require('express-validator');
+const { body, validationResult, param, query } = require('express-validator');
 const express = require('express');
 const swagger = require('swagger-ui-express');
 const cors = require('cors');
@@ -109,20 +109,26 @@ app.get('/new/:path/write',
       .catch((err) => next(err));
   });
 
-app.get('/person/:username',
-  param('username').isAscii(),
-  (req, res, next) => {
+app.get('/person/get',
+  query('username').optional().isAscii(),
+  query('id').optional().isMongoId(),
+  (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) return res.status(400).json({ errors: errors.array() });
 
-    const person = new Person(req.params.username);
-    return person.get()
-      .then((obj) => {
-        res.send(obj);
-      })
-      .catch((err) => {
-        next(err);
-      });
+    if (req.query.username !== undefined) {
+      return new Person(req.query.username).get()
+        .then((obj) => res.send(obj))
+        .catch((err) => res.status(500).send(`An error occured! ${err.message}`));
+    }
+
+    if (req.query.id !== undefined) {
+      return Person.getById(req.query.id).then((person) => person.get()
+        .then((user) => res.json(user))
+        .catch((err) => res.status(500).send(`An error occured! ${err.message}`)));
+    }
+
+    return res.status(400).json({ errors: 'ID and username variables are not defined!' });
   });
 
 app.use((req, res) => {
