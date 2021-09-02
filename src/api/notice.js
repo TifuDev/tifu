@@ -28,12 +28,15 @@ class News {
       title,
       desc,
       path: this.path,
+      pullRequest: [],
+      comments: [],
       author: personId,
       date: currentDate,
       dateLastmod: null,
       downloads: 0,
       metadata,
       content,
+      reactions: [],
     };
 
     return new Promise((resolve, reject) => {
