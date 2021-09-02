@@ -8,7 +8,13 @@ The format of changelog is based in [Keep a Changelog](https://keepachangelog.co
 
 Modifications not released will be documented here
 
-## 2.0.0 | 2021-09-02 Hytalo M. Bassi
+## 2.1.1 | 2021-09-02 Hytalo M. Bassi
+
+#### Added
+
+- roles field when creating user
+
+## 2.1.0 | 2021-09-02 Hytalo M. Bassi
 
 #### Added
 

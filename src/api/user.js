@@ -15,6 +15,7 @@ class Person {
       email,
       details,
       password,
+      roles: ['editor', 'commenter'],
     };
 
     return new Promise((resolve, reject) => user.findOne(
