@@ -8,6 +8,15 @@ The format of changelog is based in [Keep a Changelog](https://keepachangelog.co
 
 Modifications not released will be documented here
 
+## 2.0.0 | 2021-09-02 Hytalo M. Bassi
+
+#### Added
+
+- roles for Person
+- pullRequest for News
+- comments for News
+
+
 ## 2.0.0 | 2021-08-09 Hytalo M. Bassi
 
 #### Added
