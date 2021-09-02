@@ -2,7 +2,6 @@ const { mongoose } = require('../utils/db')
 const { News } = require('../api/notice')
 
 const newObj = new News('test');
-const personId = '507f1f77bcf86cd799439011';
 const metadata = {
   inLanguage: 'en-us',
   accessMode: 'textual',
@@ -11,7 +10,7 @@ const metadata = {
 }
 
 it('should write the new', () =>
-  expect(newObj.write('Title', '# Content', 'Description', personId, metadata))
+  expect(newObj.write('Title', '# Content', 'Description', '', metadata))
     .resolves.not.toBeNull());
 
 it('should return the new', () => expect(newObj.get()).resolves.not.toBeNull());

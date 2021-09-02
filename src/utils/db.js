@@ -36,6 +36,7 @@ const news = mongoose.model('new', mongoose.Schema({
     isBasedOn: [String],
   },
   content: String,
+  editors: [String],
   comments: [{
     _id: mongoose.Types.ObjectId,
     personId: String,

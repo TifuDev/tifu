@@ -36,6 +36,7 @@ class News {
       downloads: 0,
       metadata,
       content,
+      editors: [],
       reactions: [],
     };
 
@@ -44,18 +45,24 @@ class News {
         if (err) return reject(err);
         if (doc.length > 0) return reject(new Error('New already exists!'));
 
-        db.news.findOne({}, '_id', (err, doc) => {
-          if (doc !== null) {
-            newObj._id = doc._id + 1;
-          }
-          if (err) reject(err);
+        return db.user.findOne({ username: personId }, (findUserErr, person) => {
+          if (findUserErr) return reject(findUserErr);
+          if (person === null) newObj.author = undefined;
+          else if (person.roles.indexOf('journalist') === -1) return reject(new Error(`${person.username} not allowed to do this task!`));
 
-          db.news.create(newObj, (err) => {
-            if (err) return reject(err);
+          return db.news.findOne({}, '_id', (getIdsErr, newsArticles) => {
+            if (newsArticles !== null) {
+              newObj._id = newsArticles._id + 1;
+            }
+            if (getIdsErr) reject(getIdsErr);
 
-            return resolve(newObj);
-          });
-        }).sort({ _id: -1 });
+            db.news.create(newObj, (createErr) => {
+              if (err) return reject(createErr);
+
+              return resolve(newObj);
+            });
+          }).sort({ _id: -1 });
+        });
       });
     });
   }

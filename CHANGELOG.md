@@ -8,7 +8,19 @@ The format of changelog is based in [Keep a Changelog](https://keepachangelog.co
 
 Modifications not released will be documented here
 
-## 2.1.1 | 2021-09-02 Hytalo M. Bassi
+## 2.1.3 | 2021-09-02 Hytalo M. Bassi
+
+#### Added
+
+- editors field
+- author role verification
+
+#### Removed
+
+- personId from news.test.js
+
+
+## 2.1.2 | 2021-09-02 Hytalo M. Bassi
 #### Added
 
 - pullRequest, comments, reacions when writing NewsArticle
