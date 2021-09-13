@@ -8,6 +8,13 @@ The format of changelog is based in [Keep a Changelog](https://keepachangelog.co
 
 Modifications not released will be documented here
 
+## 2.2.0 | 2021-09-02 Hytalo M. Bassi
+
+#### Added
+
+- comment method to News Class
+- react method to News Class
+
 ## 2.1.3 | 2021-09-02 Hytalo M. Bassi
 
 #### Added
@@ -18,7 +25,6 @@ Modifications not released will be documented here
 #### Removed
 
 - personId from news.test.js
-
 
 ## 2.1.2 | 2021-09-02 Hytalo M. Bassi
 #### Added

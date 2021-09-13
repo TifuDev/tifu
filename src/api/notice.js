@@ -78,6 +78,50 @@ class News {
       });
     });
   }
+
+  react(personId, weight) {
+    return new Promise((resolve, reject) => {
+      db.news.updateOne({ path: this.path }, {
+        $push: { reactions: [personId, weight] },
+      }, (err, doc) => {
+        if (err) return reject(err);
+        return resolve(doc);
+      });
+    });
+  }
+
+  comment(personId, content, replyToId) {
+    const filter = {
+      path: this.path,
+    };
+
+    const update = {
+      $push: {
+        comments: {
+          _id: db.mongoose.Types.ObjectId(),
+          personId,
+          content,
+          comments: [],
+          reactions: [],
+        },
+      },
+    };
+
+    if (replyToId !== undefined) {
+      filter['comments._id'] = replyToId !== undefined ? replyToId : undefined;
+
+      update.$push['comments.$.comments'] = update.$push.comments;
+      delete update.$push.comments;
+    }
+
+    return new Promise((resolve, reject) => {
+      db.news.updateOne(filter, update, (err, doc) => {
+        if (err) return reject(err);
+
+        return resolve(doc);
+      });
+    });
+  }
 }
 
 async function seeCatalog(callback, filters, sort, limit) {
