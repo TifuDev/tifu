@@ -8,7 +8,15 @@ The format of changelog is based in [Keep a Changelog](https://keepachangelog.co
 
 Modifications not released will be documented here
 
-## 2.2.01 | 2021-09-23 Hytalo M. Bassi
+## 2.2.2 | 2021-09-23 Hytalo M. Bassi
+
+#### Changed
+
+- mongoose upgraded to 6.x
+- mongoose.connection options removed
+- cast process.env.PORT to Number
+
+## 2.2.1 | 2021-09-23 Hytalo M. Bassi
 
 #### Added
 

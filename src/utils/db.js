@@ -83,11 +83,7 @@ userSchema.pre('save', function (next) {
 
 const user = mongoose.model('user', userSchema);
 
-mongoose.connect(uri, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-  useFindAndModify: false,
-});
+mongoose.connect(uri);
 
 mongoose.connection.on('open', () => console.log('Database connected succesfully'));
 

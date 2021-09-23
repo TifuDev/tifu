@@ -7,7 +7,7 @@ const notice = require('./api/notice');
 const sec = require('./api/security');
 const { Person } = require('./api/user');
 
-const port = process.env.PORT || 3000;
+const port = Number(process.env.PORT) || 3000;
 
 const app = express();
 app.use(express.urlencoded({
@@ -126,6 +126,8 @@ app.get('/person/get',
       return Person.getById(req.query.id).then((person) => person.get()
         .then((user) => res.json(user))
         .catch((err) => res.status(500).send(`An error occured! ${err.message}`)));
+    } {
+      useFindAndModify: false,
     }
 
     return res.status(400).json({ errors: 'ID and username variables are not defined!' });
