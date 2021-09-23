@@ -8,6 +8,16 @@ The format of changelog is based in [Keep a Changelog](https://keepachangelog.co
 
 Modifications not released will be documented here
 
+## 2.2.01 | 2021-09-23 Hytalo M. Bassi
+
+#### Added
+
+- .dockerignore file
+
+#### Changed
+
+- package manager files uses the new version of jest and eslint-plugin-import
+
 ## 2.2.0 | 2021-09-02 Hytalo M. Bassi
 
 #### Added
