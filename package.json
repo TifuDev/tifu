@@ -1,6 +1,6 @@
 {
   "name": "tifu",
-  "version": "2.2.1",
+  "version": "2.2.3",
   "description": "Steps to configure a localhost to tifu",
   "main": "src/app.js",
   "scripts": {

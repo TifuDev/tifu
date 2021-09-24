@@ -1,11 +1,12 @@
 require('dotenv').config();
-const { body, validationResult, param, query } = require('express-validator');
+const { body, param, query } = require('express-validator');
 const express = require('express');
 const swagger = require('swagger-ui-express');
 const cors = require('cors');
 const notice = require('./api/notice');
 const sec = require('./api/security');
 const { Person } = require('./api/user');
+const { newExists, validation } = require('./middlewares');
 
 const port = Number(process.env.PORT) || 3000;
 
@@ -25,39 +26,27 @@ app.use(cors());
 
 app.get('/new/:path',
   param('path').isAscii(),
-  (req, res, next) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) return res.status(400).json({ errors: errors.array() });
-
-    return new notice.News(req.params.path).get()
-      .then(([newObj]) => res.json({ newObj }))
-      .catch((err) => next(err));
-  });
+  validation,
+  (req, res, next) => new notice.News(req.params.path).get()
+    .then(([newObj]) => res.json({ newObj }))
+    .catch((err) => next(err)));
 
 app.post('/login',
   body('username').isAscii(),
   body('password').isLength({ min: 4 }),
-  (req, res, next) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) return res.status(400).json({ errors: errors.array() });
-
-    return new Person(req.body.username).login(req.body.password)
-      .then(([token]) => {
-        res.json(token);
-      })
-      .catch((err) => next(err));
-  });
+  validation,
+  (req, res, next) => new Person(req.body.username).login(req.body.password)
+    .then(([token]) => {
+      res.json(token);
+    })
+    .catch((err) => next(err)));
 
 app.get('/new/:path/remove',
   param('path').isAscii(),
-  sec.noticeOwner, (req, res) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) return res.status(400).json({ errors: errors.array() });
-
-    return req.newObj.remove()
-      .then(res.sendStatus(204))
-      .catch((err) => res.status(500).send(err));
-  });
+  validation,
+  sec.noticeOwner, (req, res) => req.newObj.remove()
+    .then(res.sendStatus(204))
+    .catch((err) => res.status(500).send(err)));
 
 app.get('/catalog', (req, res) => {
   let filters = {};
@@ -83,10 +72,8 @@ app.get('/new/:path/write',
   body('content').not().isEmpty(),
   body('desc').not().isEmpty().isLength({ min: 12, max: 256 }),
   body('metadata').isJSON(),
+  validation,
   sec.authMiddleware, (req, res, next) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) return res.status(400).json({ errors: errors.array() });
-
     const {
       title,
       content,
@@ -112,10 +99,8 @@ app.get('/new/:path/write',
 app.get('/person/get',
   query('username').optional().isAscii(),
   query('id').optional().isMongoId(),
+  validation,
   (req, res) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) return res.status(400).json({ errors: errors.array() });
-
     if (req.query.username !== undefined) {
       return new Person(req.query.username).get()
         .then((obj) => res.send(obj))
@@ -126,13 +111,23 @@ app.get('/person/get',
       return Person.getById(req.query.id).then((person) => person.get()
         .then((user) => res.json(user))
         .catch((err) => res.status(500).send(`An error occured! ${err.message}`)));
-    } {
-      useFindAndModify: false,
     }
 
     return res.status(400).json({ errors: 'ID and username variables are not defined!' });
   });
 
+app.get('/new/:path/react',
+  param('path').isAscii(),
+  query('weight').isInt(),
+  validation,
+  newExists,
+  sec.authMiddleware,
+  (req, res) => req.person.get()
+    .then((person) => {
+      // eslint-disable-next-line no-underscore-dangle
+      req.newArticle.react(person._id, Number(req.query.weight))
+        .then(res.sendStatus(200));
+    }));
 app.use((req, res) => {
   res.status(404).send('Unable to find the requested resource!');
 });

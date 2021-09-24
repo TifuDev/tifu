@@ -8,6 +8,22 @@ The format of changelog is based in [Keep a Changelog](https://keepachangelog.co
 
 Modifications not released will be documented here
 
+## 2.2.3 | 2021-09-23 Hytalo M. Bassi
+
+#### Added
+
+- middlewares.js
+- launch.json
+- /new/:path/react router
+- validation middleware
+- newExists middleware
+
+#### Changed
+
+- routers for news now uses newExists middleware
+- router with request validation now uses validation middleware
+- News class now have property *article* to save newArticle object from database
+
 ## 2.2.2 | 2021-09-23 Hytalo M. Bassi
 
 #### Changed

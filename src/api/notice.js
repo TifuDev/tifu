@@ -3,20 +3,21 @@ const db = require('../utils/db');
 class News {
   constructor(path) {
     this.path = path;
+    this.article = {};
   }
 
   get() {
     return new Promise((resolve, reject) => {
-      db.news.findOneAndUpdate({ path: this.path }, {
-        $inc: {
-          downloads: 1,
-        },
-      }, ((err, newObj) => {
-        if (err) return reject(err);
-        if (newObj === null) return reject(new Error('New not found!'));
+      db.news.findOneAndUpdate({ path: this.path }, { $inc: { downloads: 1 } })
+        .then((newObj) => {
+          if (newObj === null) return reject(new Error('New not found!'));
 
-        return resolve([newObj]);
-      }));
+          this.article = newObj;
+          return resolve([newObj]);
+        })
+        .catch((err) => {
+          reject(err);
+        });
     });
   }
 
@@ -54,7 +55,7 @@ class News {
             if (newsArticles !== null) {
               newObj._id = newsArticles._id + 1;
             }
-            if (getIdsErr) reject(getIdsErr);
+            if (getIdsErr) return reject(getIdsErr);
 
             db.news.create(newObj, (createErr) => {
               if (err) return reject(createErr);
@@ -69,7 +70,7 @@ class News {
 
   remove() {
     return new Promise((resolve, reject) => {
-      db.news.remove({
+      db.news.deleteOne({
         path: this.path,
       }, (err) => {
         if (err) return reject(err);
