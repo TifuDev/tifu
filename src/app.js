@@ -26,10 +26,8 @@ app.use(cors());
 
 app.get('/new/:path',
   param('path').isAscii(),
-  validation,
-  (req, res, next) => new notice.News(req.params.path).get()
-    .then(([newObj]) => res.json({ newObj }))
-    .catch((err) => next(err)));
+  validation, newExists,
+  (req, res) => res.json(req.newArticle.article));
 
 app.post('/login',
   body('username').isAscii(),
@@ -43,8 +41,8 @@ app.post('/login',
 
 app.get('/new/:path/remove',
   param('path').isAscii(),
-  validation,
-  sec.noticeOwner, (req, res) => req.newObj.remove()
+  validation, newExists, sec.noticeOwner,
+  (req, res) => req.newArticle.remove()
     .then(res.sendStatus(204))
     .catch((err) => res.status(500).send(err)));
 
@@ -72,8 +70,8 @@ app.get('/new/:path/write',
   body('content').not().isEmpty(),
   body('desc').not().isEmpty().isLength({ min: 12, max: 256 }),
   body('metadata').isJSON(),
-  validation,
-  sec.authMiddleware, (req, res, next) => {
+  validation, sec.authMiddleware,
+  (req, res, next) => {
     const {
       title,
       content,
@@ -128,6 +126,18 @@ app.get('/new/:path/react',
       req.newArticle.react(person._id, Number(req.query.weight))
         .then(res.sendStatus(200));
     }));
+
+app.get('/new/:path/comment',
+  param('path').isAscii(),
+  body('content').isAscii(),
+  validation,
+  newExists,
+  sec.authMiddleware,
+  // eslint-disable-next-line no-underscore-dangle
+  (req, res) => req.newArticle.comment(req.person.data._id, req.body.content)
+    .then(res.sendStatus(200))
+    .catch(res.sendStatus(500)));
+
 app.use((req, res) => {
   res.status(404).send('Unable to find the requested resource!');
 });

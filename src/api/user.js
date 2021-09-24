@@ -5,6 +5,7 @@ const { hashString } = require('../utils/hash');
 class Person {
   constructor(username) {
     this.username = username;
+    this.data = {};
   }
 
   create(firstName, familyName, email, details, password) {
@@ -27,6 +28,7 @@ class Person {
         return user.create(personObj, (createErr) => {
           if (createErr) return reject(createErr);
 
+          this.data = personObj;
           return resolve(personObj);
         });
       },
@@ -39,6 +41,7 @@ class Person {
         if (err) return reject(err);
         if (doc === null) return reject(new Error('User not found'));
 
+        this.data = doc;
         return resolve(new Person(doc.username));
       });
     });
@@ -50,6 +53,7 @@ class Person {
         if (err) return reject(err);
         if (doc === null) return reject(new Error('User not found!'));
 
+        this.data = doc;
         return resolve(doc);
       });
     });

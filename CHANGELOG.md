@@ -8,7 +8,22 @@ The format of changelog is based in [Keep a Changelog](https://keepachangelog.co
 
 Modifications not released will be documented here
 
-## 2.2.3 | 2021-09-23 Hytalo M. Bassi
+## 2.2.3 | 2021-09-24 Hytalo M. Bassi
+
+#### Added
+
+- '/new/:path/comment' router
+- data property in User class
+
+#### Changed
+
+- app.js router using newExist middleware
+
+#### Removed
+
+- signTokens file
+
+## 2.2.3 | 2021-09-24 Hytalo M. Bassi
 
 #### Added
 
