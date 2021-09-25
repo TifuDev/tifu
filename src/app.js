@@ -4,9 +4,10 @@ const express = require('express');
 const swagger = require('swagger-ui-express');
 const cors = require('cors');
 const notice = require('./api/notice');
-const sec = require('./api/security');
 const { Person } = require('./api/user');
-const { newExists, validation } = require('./middlewares');
+const {
+  newExists, validation, auth, isOwnerOfNew,
+} = require('./middlewares');
 
 const port = Number(process.env.PORT) || 3000;
 
@@ -41,10 +42,10 @@ app.post('/login',
 
 app.get('/new/:path/remove',
   param('path').isAscii(),
-  validation, newExists, sec.noticeOwner,
+  validation, isOwnerOfNew,
   (req, res) => req.newArticle.remove()
-    .then(res.sendStatus(204))
-    .catch((err) => res.status(500).send(err)));
+    .then(res.sendStatus(200))
+    .catch(res.sendStatus(500)));
 
 app.get('/catalog', (req, res) => {
   let filters = {};
@@ -69,29 +70,38 @@ app.get('/new/:path/write',
   body('title').not().isEmpty(),
   body('content').not().isEmpty(),
   body('desc').not().isEmpty().isLength({ min: 12, max: 256 }),
-  body('metadata').isJSON(),
-  validation, sec.authMiddleware,
+  body('thumbnailUrl').isAscii(),
+  body('accessMode').isAscii(),
+  body('isBasedOn').isArray(),
+  body('inLanguage').isAscii().isLength({ min: 2, max: 2 }),
+  body('keywords').isArray(),
+  validation, auth,
   (req, res, next) => {
     const {
       title,
       content,
       desc,
-      metadata,
+      thumbnailUrl,
+      accessMode,
+      isBasedOn,
+      inLanguage,
+      keywords,
     } = req.body;
 
-    return req.person.get()
-      .then((person) => {
-        new notice.News(req.params.path).write(
-          title,
-          content,
-          desc,
-          person,
-          metadata,
-        )
-          .then((newObj) => res.json(newObj))
-          .catch((err) => next(err));
-      })
-      .catch((err) => next(err));
+    new notice.News(req.params.path).write(
+      title,
+      content,
+      desc,
+      // eslint-disable-next-line no-underscore-dangle
+      req.person.data._id,
+      {
+        thumbnailUrl,
+        accessMode,
+        isBasedOn,
+        inLanguage,
+        keywords,
+      },
+    ).then((newObj) => res.json(newObj)).catch((err) => next(err));
   });
 
 app.get('/person/get',
@@ -119,7 +129,7 @@ app.get('/new/:path/react',
   query('weight').isInt(),
   validation,
   newExists,
-  sec.authMiddleware,
+  auth,
   (req, res) => req.person.get()
     .then((person) => {
       // eslint-disable-next-line no-underscore-dangle
@@ -132,7 +142,7 @@ app.get('/new/:path/comment',
   body('content').isAscii(),
   validation,
   newExists,
-  sec.authMiddleware,
+  auth,
   // eslint-disable-next-line no-underscore-dangle
   (req, res) => req.newArticle.comment(req.person.data._id, req.body.content)
     .then(res.sendStatus(200))

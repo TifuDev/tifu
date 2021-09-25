@@ -8,7 +8,22 @@ The format of changelog is based in [Keep a Changelog](https://keepachangelog.co
 
 Modifications not released will be documented here
 
-## 2.2.3 | 2021-09-24 Hytalo M. Bassi
+## 2.2.5 | 2021-09-25 Hytalo M. Bassi
+
+#### Added
+
+- auth and isOwnerOfNew middlewares
+
+#### Changed
+
+- '/new/:path/write' body to receives metadata properties
+#### Removed
+
+- personId verification
+- security.js from src/api
+
+
+## 2.2.4 | 2021-09-24 Hytalo M. Bassi
 
 #### Added
 

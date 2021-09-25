@@ -23,15 +23,14 @@ class News {
 
   write(title, content, desc, personId, metadata) {
     const currentDate = new Date();
-
-    let newObj = {
+    const newObj = {
       _id: 0,
       title,
       desc,
       path: this.path,
       pullRequest: [],
       comments: [],
-      author: personId,
+      author: personId || undefined,
       date: currentDate,
       dateLastmod: null,
       downloads: 0,
@@ -46,24 +45,18 @@ class News {
         if (err) return reject(err);
         if (doc.length > 0) return reject(new Error('New already exists!'));
 
-        return db.user.findOne({ username: personId }, (findUserErr, person) => {
-          if (findUserErr) return reject(findUserErr);
-          if (person === null) newObj.author = undefined;
-          else if (person.roles.indexOf('journalist') === -1) return reject(new Error(`${person.username} not allowed to do this task!`));
-
-          return db.news.findOne({}, '_id', (getIdsErr, newsArticles) => {
-            if (newsArticles !== null) {
-              newObj._id = newsArticles._id + 1;
-            }
-            if (getIdsErr) return reject(getIdsErr);
-
-            db.news.create(newObj, (createErr) => {
-              if (err) return reject(createErr);
-
-              return resolve(newObj);
-            });
-          }).sort({ _id: -1 });
-        });
+        // eslint-disable-next-line consistent-return
+        return db.news.findOne({}, '_id', (getIdsErr, newsArticles) => {
+          if (newsArticles !== null) {
+            // eslint-disable-next-line no-underscore-dangle
+            newObj._id = newsArticles._id + 1;
+          }
+          if (getIdsErr) return reject(getIdsErr);
+          db.news.create(newObj, (createErr) => {
+            if (createErr) return reject(createErr);
+            return resolve(newObj);
+          });
+        }).sort({ _id: -1 });
       });
     });
   }
