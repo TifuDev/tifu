@@ -1,18 +1,21 @@
 {
   "name": "tifu",
-  "version": "2.2.5",
+  "version": "2.2.6",
   "description": "Steps to configure a localhost to tifu",
   "main": "src/app.js",
   "scripts": {
     "start": "node src/app.js",
-    "test": "jest --runInBand",
+    "test": "jest --runInBand --watchAll --silent",
     "lint": "eslint src/"
   },
   "jest": {
-    "globalSetup": "./scripts/jest/globalSetup.js"
+    "globalSetup": "./scripts/jest/globalSetup.js",
+    "testEnvironment": "node",
+    "verbose": true,
+    "collectCoverage": true
   },
   "author": "",
-  "license": "ISC",
+  "private": true,
   "dependencies": {
     "cors": "^2.8.5",
     "dotenv": "^10.0.0",

@@ -11,8 +11,7 @@
       "runtimeExecutable": "yarn",
       "args": [
         "test",
-        "--runInBand",
-        "--watchAll=false"
+        "--watchAll=false",
       ]
     }
   ]
