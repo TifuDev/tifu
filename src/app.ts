@@ -1,10 +1,11 @@
-require('dotenv').config();
+import 'dotenv/config'
+import Person from '@api/user'
+import News from '@api/notice'
 const { body, param, query } = require('express-validator');
 const express = require('express');
 const swagger = require('swagger-ui-express');
 const cors = require('cors');
-const notice = require('./api/notice');
-const { Person } = require('./api/user');
+
 const {
   newExists, validation, auth, isOwnerOfNew,
 } = require('./middlewares');
@@ -56,7 +57,7 @@ app.post('/login',
   body('password').isLength({ min: 4 }),
   validation,
   (req: any, res: any, next: Function) => new Person(req.body.username).login(req.body.password)
-    .then(([token]: [string]): void => {
+    .then(([token, doc]: [string, {}]): void => {
         res.json(token);
       })
     .catch((err: Error) => next(err)));
@@ -80,7 +81,7 @@ app.get('/catalog', (req: any, res: any) => {
     if (req.query.highest) { sort = { downloads: -1 }; }
   }
 
-  notice.seeCatalog((err: Error, doc: {}) => {
+  News.seeCatalog((err: Error, doc: {}) => {
     if (err) return res.status(500);
 
     return res.json(doc);
@@ -109,7 +110,7 @@ app.get('/new/:path/write',
       keywords,
     } = req.body;
 
-    new notice.News(req.params.path).write(
+    new News(req.params.path).write(
       title,
       content,
       desc,

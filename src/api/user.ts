@@ -1,14 +1,18 @@
+import { hashString } from '@utils/hash';
+import { user, news } from '@utils/db'; 
+import { CallbackError } from 'mongoose';
 const { sign } = require('jsonwebtoken');
-const { user, news } = require('../utils/db');
-const { hashString } = require('../utils/hash');
 
-class Person {
-  constructor(username) {
+export default class Person {
+  username: string;
+  data: {};
+  static data: {};
+  constructor(username: string) {
     this.username = username;
     this.data = {};
   }
 
-  create(firstName, familyName, email, details, password) {
+  create(firstName: string, familyName: string, email: string, details: { }, password: string) {
     const personObj = {
       firstName,
       familyName,
@@ -21,11 +25,11 @@ class Person {
 
     return new Promise((resolve, reject) => user.findOne(
       { $or: [{ username: this.username }, { firstName, familyName }, { email }] },
-      (err, doc) => {
+      (err: Error, doc: { }) => {
         if (err) return reject(err);
         if (doc !== null) return reject(new Error('Personal data already in use'));
 
-        return user.create(personObj, (createErr) => {
+        return user.create(personObj, (createErr: CallbackError) => {
           if (createErr) return reject(createErr);
 
           this.data = personObj;
@@ -35,9 +39,9 @@ class Person {
     ));
   }
 
-  static getById(id) {
+  static getById(id: string) {
     return new Promise((resolve, reject) => {
-      user.findOne({ _id: id }, (err, doc) => {
+      user.findOne({ _id: id }, (err: Error, doc: { username: string }) => {
         if (err) return reject(err);
         if (doc === null) return reject(new Error('User not found'));
 
@@ -49,7 +53,7 @@ class Person {
 
   get() {
     return new Promise((resolve, reject) => {
-      user.findOne({ username: this.username }, (err, doc) => {
+      user.findOne({ username: this.username }, (err: Error, doc: { }) => {
         if (err) return reject(err);
         if (doc === null) return reject(new Error('User not found!'));
 
@@ -59,14 +63,14 @@ class Person {
     });
   }
 
-  login(password) {
+  login(password: string): Promise<[string, { }]> {
     const { username } = this;
     let token;
     return new Promise((resolve, reject) => {
       user.findOne({
         username,
         password: hashString(password),
-      }, (err, doc) => {
+      }, (err: Error, doc: { }) => {
         if (err) return reject(err);
         if (doc === null) return reject(new Error('Username or password wrong!'));
 
@@ -79,7 +83,7 @@ class Person {
     });
   }
 
-  change(field, value) {
+  change(field: string, value: string) {
     return new Promise((resolve, reject) => {
       user.updateOne({
         username: this.username,
@@ -87,7 +91,7 @@ class Person {
         $set: {
           [field]: value,
         },
-      }, (err, res) => {
+      }, (err: string, res: { }) => {
         if (err) return reject(err);
 
         return resolve(res);
@@ -95,14 +99,14 @@ class Person {
     });
   }
 
-  isOwnerOf(path) {
+  isOwnerOf(path: string) {
     return new Promise((resolve, reject) => {
-      user.findOne({ username: this.username }, (err, doc) => {
+      user.findOne({ username: this.username }, (err: Error, doc: { _id: number }) => {
         if (err) return reject(err);
         if (doc === null) return reject(new Error('Username not found'));
 
         // eslint-disable-next-line no-underscore-dangle
-        return news.findOne({ path, author: doc._id }, (newErr, newObj) => {
+        return news.findOne({ path, author: doc._id }, (newErr: Error, newObj: { }) => {
           if (newErr) return reject(newErr);
           if (newObj === null) return resolve(false);
 
@@ -114,7 +118,7 @@ class Person {
 
   remove() {
     return new Promise((resolve, reject) => {
-      user.deleteOne({ username: this.username }, (err, deletedCount) => {
+      user.deleteOne({ username: this.username }, (err: Error, deletedCount: number) => {
         if (err) return reject(err);
         if (deletedCount === 0) return reject(new Error('User not found!'));
 
@@ -123,5 +127,3 @@ class Person {
     });
   }
 }
-
-module.exports = { Person };

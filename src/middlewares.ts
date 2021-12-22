@@ -1,17 +1,17 @@
+import Person from '@api/user';
+import News from '@api/notice';
 const { validationResult } = require('express-validator');
 const { verify } = require('jsonwebtoken');
-const { News } = require('./api/notice');
-const { Person } = require('./api/user');
 
-function newExists(req, res, next) {
+function newExists(req: any, res: any, next: Function) {
   req.newArticle = new News(req.params.path);
 
   return req.newArticle.get()
     .then(() => next())
-    .catch((err) => res.status(404).send(err.message));
+    .catch((err: Error) => res.status(404).send(err.message));
 }
 
-function validation(req, res, next) {
+function validation(req: any, res: any, next: Function) {
   const errors = validationResult(req);
   if (!errors.isEmpty()) return res.status(400).json({ errors: errors.array() });
 
@@ -19,7 +19,7 @@ function validation(req, res, next) {
 }
 
 // eslint-disable-next-line consistent-return
-function auth(req, res, next) {
+function auth(req: any, res: any, next: Function) {
   try {
     const authHeader = req.headers.authorization;
     const token = authHeader.split('Bearer ')[1];
@@ -27,24 +27,24 @@ function auth(req, res, next) {
     if (!token) throw new Error('No token!');
 
     // eslint-disable-next-line consistent-return
-    verify(token, process.env.ACCTOKEN_SECRET, (err, dec) => {
+    verify(token, process.env.ACCTOKEN_SECRET, (err: Error, dec: { username: string }) => {
       if (err) return res.sendStatus(err.name === 'TokenExpiredError' ? 403 : 405);
       req.person = new Person(dec.username);
 
       req.person.get()
         // eslint-disable-next-line consistent-return
-        .then((personObj) => {
+        .then((personObj: { }) => {
           if (personObj === null) return res.sendStatus(404);
           next();
         })
-        .catch((getErr) => res.status(500).send(getErr));
+        .catch((getErr: Error) => res.status(500).send(getErr));
     });
   } catch {
     return res.sendStatus(401);
   }
 }
 
-function isOwnerOfNew(req, res, next) {
+function isOwnerOfNew(req: any, res: any, next: Function) {
   // eslint-disable-next-line consistent-return
   newExists(req, res, () => auth(req, res, () => {
     // eslint-disable-next-line no-underscore-dangle

@@ -6,8 +6,13 @@
       "allowJs": true,
       "module": "commonjs",
       "outDir": "./dist",
-      "baseUrl": "./src"
+      "baseUrl": "./src",
+      "paths": {
+        "@api/*": ["api/*"],
+        "@utils/*": ["utils/*"]
+      },
   },
+  "typeRoots": ["./global.d.ts", "./node_modules/@types"],
   "include": [
       "src/**/*.ts"
   ],

@@ -1,6 +1,6 @@
 const db = require('../utils/db');
 
-class News {
+export default class News {
   constructor(path) {
     this.path = path;
     this.article = {};
@@ -116,10 +116,8 @@ class News {
       });
     });
   }
-}
 
-async function seeCatalog(callback, filters, sort, limit) {
-  db.news.find(filters, callback).sort(sort).limit(limit);
+  static async seeCatalog(callback, filters, sort, limit) {
+    db.news.find(filters, callback).sort(sort).limit(limit);
+  }
 }
-
-module.exports = { News, seeCatalog };

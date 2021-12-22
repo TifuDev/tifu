@@ -1,6 +1,7 @@
 node_modules/*
 coverage/*
 dist/*
+yarn-error.log
 .env
 .env.test
 package-lock.json

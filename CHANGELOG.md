@@ -8,6 +8,25 @@ The format of changelog is based in [Keep a Changelog](https://keepachangelog.co
 
 Modifications not released will be documented here
 
+## 2.2.8 | 2021-09-25 Hytalo M. Bassi
+
+#### Added
+
+- middleware.ts
+- global.d.ts to have typings in global
+- users.ts
+
+#### Remove
+
+- user.js
+- middleware.js
+
+#### Changed
+
+- tsconfig.json to have path mappings and global types
+- app.ts using types
+- notice.js now exports by default the News class and seeCatalog is part of News now
+
 ## 2.2.7 | 2021-09-25 Hytalo M. Bassi
 
 #### Added
