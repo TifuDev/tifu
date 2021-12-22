@@ -3,37 +3,41 @@ const db = require('../utils/db');
 class News {
   constructor(path) {
     this.path = path;
+    this.article = {};
   }
 
   get() {
     return new Promise((resolve, reject) => {
-      db.news.findOneAndUpdate({ path: this.path }, {
-        $inc: {
-          downloads: 1,
-        },
-      }, ((err, newObj) => {
-        if (err) return reject(err);
-        if (newObj === null) return reject(new Error('New not found!'));
+      db.news.findOneAndUpdate({ path: this.path }, { $inc: { downloads: 1 } })
+        .then((newObj) => {
+          if (newObj === null) return reject(new Error('New not found!'));
 
-        return resolve([newObj]);
-      }));
+          this.article = newObj;
+          return resolve([newObj]);
+        })
+        .catch((err) => {
+          reject(err);
+        });
     });
   }
 
   write(title, content, desc, personId, metadata) {
     const currentDate = new Date();
-
-    let newObj = {
+    const newObj = {
       _id: 0,
       title,
       desc,
       path: this.path,
-      author: personId,
+      pullRequest: [],
+      comments: [],
+      author: personId || undefined,
       date: currentDate,
       dateLastmod: null,
       downloads: 0,
       metadata,
       content,
+      editors: [],
+      reactions: [],
     };
 
     return new Promise((resolve, reject) => {
@@ -41,15 +45,15 @@ class News {
         if (err) return reject(err);
         if (doc.length > 0) return reject(new Error('New already exists!'));
 
-        db.news.findOne({}, '_id', (err, doc) => {
-          if (doc !== null) {
-            newObj._id = doc._id + 1;
+        // eslint-disable-next-line consistent-return
+        return db.news.findOne({}, '_id', (getIdsErr, newsArticles) => {
+          if (newsArticles !== null) {
+            // eslint-disable-next-line no-underscore-dangle
+            newObj._id = newsArticles._id + 1;
           }
-          if (err) reject(err);
-
-          db.news.create(newObj, (err) => {
-            if (err) return reject(err);
-
+          if (getIdsErr) return reject(getIdsErr);
+          db.news.create(newObj, (createErr) => {
+            if (createErr) return reject(createErr);
             return resolve(newObj);
           });
         }).sort({ _id: -1 });
@@ -59,12 +63,56 @@ class News {
 
   remove() {
     return new Promise((resolve, reject) => {
-      db.news.remove({
+      db.news.deleteOne({
         path: this.path,
       }, (err) => {
         if (err) return reject(err);
 
         return resolve();
+      });
+    });
+  }
+
+  react(personId, weight) {
+    return new Promise((resolve, reject) => {
+      db.news.updateOne({ path: this.path }, {
+        $push: { reactions: [personId, weight] },
+      }, (err, doc) => {
+        if (err) return reject(err);
+        return resolve(doc);
+      });
+    });
+  }
+
+  comment(personId, content, replyToId) {
+    const filter = {
+      path: this.path,
+    };
+
+    const update = {
+      $push: {
+        comments: {
+          _id: db.mongoose.Types.ObjectId(),
+          personId,
+          content,
+          comments: [],
+          reactions: [],
+        },
+      },
+    };
+
+    if (replyToId !== undefined) {
+      filter['comments._id'] = replyToId !== undefined ? replyToId : undefined;
+
+      update.$push['comments.$.comments'] = update.$push.comments;
+      delete update.$push.comments;
+    }
+
+    return new Promise((resolve, reject) => {
+      db.news.updateOne(filter, update, (err, doc) => {
+        if (err) return reject(err);
+
+        return resolve(doc);
       });
     });
   }
