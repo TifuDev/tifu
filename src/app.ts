@@ -9,7 +9,28 @@ const {
   newExists, validation, auth, isOwnerOfNew,
 } = require('./middlewares');
 
-const port = Number(process.env.PORT) || 3000;
+interface bodyRequestSchema {
+  body: {
+    title: string,
+    content: string,
+    desc: string,
+    thumbnailUrl: string,
+    accessMode: string,
+    isBasedOn: string[],
+    inLanguage: string,
+    keywords: string[],
+  }
+  person: {
+    data: {
+      _id: string
+    }
+  }
+  params: {
+    path: string
+  }
+}
+
+const port: number = Number(process.env.PORT) || 3000;
 
 const app = express();
 app.use(express.urlencoded({
@@ -28,26 +49,26 @@ app.use(cors());
 app.get('/new/:path',
   param('path').isAscii(),
   validation, newExists,
-  (req, res) => res.json(req.newArticle.article));
+  (req: any, res: any) => res.json(req.newArticle.article));
 
 app.post('/login',
   body('username').isAscii(),
   body('password').isLength({ min: 4 }),
   validation,
-  (req, res, next) => new Person(req.body.username).login(req.body.password)
-    .then(([token]) => {
-      res.json(token);
-    })
-    .catch((err) => next(err)));
+  (req: any, res: any, next: Function) => new Person(req.body.username).login(req.body.password)
+    .then(([token]: [string]): void => {
+        res.json(token);
+      })
+    .catch((err: Error) => next(err)));
 
 app.get('/new/:path/remove',
   param('path').isAscii(),
   validation, isOwnerOfNew,
-  (req, res) => req.newArticle.remove()
+  (req: any, res: any) => req.newArticle.remove()
     .then(res.sendStatus(200))
     .catch(res.sendStatus(500)));
 
-app.get('/catalog', (req, res) => {
+app.get('/catalog', (req: any, res: any) => {
   let filters = {};
   let limit = 0;
   let sort = {};
@@ -59,7 +80,7 @@ app.get('/catalog', (req, res) => {
     if (req.query.highest) { sort = { downloads: -1 }; }
   }
 
-  notice.seeCatalog((err, doc) => {
+  notice.seeCatalog((err: Error, doc: {}) => {
     if (err) return res.status(500);
 
     return res.json(doc);
@@ -76,7 +97,7 @@ app.get('/new/:path/write',
   body('inLanguage').isAscii().isLength({ min: 2, max: 2 }),
   body('keywords').isArray(),
   validation, auth,
-  (req, res, next) => {
+  (req: bodyRequestSchema, res: any, next: Function) => {
     const {
       title,
       content,
@@ -101,24 +122,24 @@ app.get('/new/:path/write',
         inLanguage,
         keywords,
       },
-    ).then((newObj) => res.json(newObj)).catch((err) => next(err));
+    ).then((newObj: object) => res.json(newObj)).catch((err: Error) => next(err));
   });
 
 app.get('/person/get',
   query('username').optional().isAscii(),
   query('id').optional().isMongoId(),
   validation,
-  (req, res) => {
+  (req: { query: { username: string, id: string | undefined }}, res: any) => {
     if (req.query.username !== undefined) {
       return new Person(req.query.username).get()
-        .then((obj) => res.send(obj))
-        .catch((err) => res.status(500).send(`An error occured! ${err.message}`));
+        .then((obj: any) => res.send(obj))
+        .catch((err: any) => res.status(500).send(`An error occured! ${err.message}`));
     }
 
     if (req.query.id !== undefined) {
-      return Person.getById(req.query.id).then((person) => person.get()
-        .then((user) => res.json(user))
-        .catch((err) => res.status(500).send(`An error occured! ${err.message}`)));
+      return Person.getById(req.query.id).then((person: any) => person.get()
+        .then((user: any) => res.json(user))
+        .catch((err: Error) => res.status(500).send(`An error occured! ${err.message}`)));
     }
 
     return res.status(400).json({ errors: 'ID and username variables are not defined!' });
@@ -130,8 +151,8 @@ app.get('/new/:path/react',
   validation,
   newExists,
   auth,
-  (req, res) => req.person.get()
-    .then((person) => {
+  (req: any, res: any) => req.person.get()
+    .then((person: any) => {
       // eslint-disable-next-line no-underscore-dangle
       req.newArticle.react(person._id, Number(req.query.weight))
         .then(res.sendStatus(200));
@@ -144,11 +165,11 @@ app.get('/new/:path/comment',
   newExists,
   auth,
   // eslint-disable-next-line no-underscore-dangle
-  (req, res) => req.newArticle.comment(req.person.data._id, req.body.content)
+  (req: any, res: any) => req.newArticle.comment(req.person.data._id, req.body.content)
     .then(res.sendStatus(200))
     .catch(res.sendStatus(500)));
 
-app.use((req, res) => {
+app.use((req: any, res: any) => {
   res.status(404).send('Unable to find the requested resource!');
 });
 

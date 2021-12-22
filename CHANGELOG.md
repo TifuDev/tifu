@@ -8,6 +8,25 @@ The format of changelog is based in [Keep a Changelog](https://keepachangelog.co
 
 Modifications not released will be documented here
 
+## 2.2.7 | 2021-09-25 Hytalo M. Bassi
+
+#### Added
+
+- app.ts
+- jest.config.js
+- tsconfig.json
+
+#### Removed
+
+- app.js
+
+#### Modified
+
+- app.ts to use TypeScript
+- .eslintignore to ignore dist/
+- .gitignore to ignore dist/
+- package.json jest moved to jest.config.js
+
 ## 2.2.5 | 2021-09-25 Hytalo M. Bassi
 
 #### Added
