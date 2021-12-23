@@ -1,6 +1,5 @@
-require('@utils/db')
-const { connection } = require('mongoose');
-const { News } = require('../api/notice');
+import { connection } from 'mongoose';
+import News from '@api/notice';
 
 const newObj = new News('test');
 const metadata = {
