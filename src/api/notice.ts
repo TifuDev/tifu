@@ -1,27 +1,33 @@
-const db = require('../utils/db');
+import { news } from '@utils/db'
+import { FilterQuery, Types } from 'mongoose';
 
 export default class News {
-  constructor(path) {
+  path: string;
+  article: {
+    author?: string
+  };
+  constructor(path: string) {
     this.path = path;
     this.article = {};
   }
 
-  get() {
+  get(): Promise<unknown> {
     return new Promise((resolve, reject) => {
-      db.news.findOneAndUpdate({ path: this.path }, { $inc: { downloads: 1 } })
-        .then((newObj) => {
+      news.findOneAndUpdate({ path: this.path }, { $inc: { downloads: 1 } })
+        .then(newObj => {
           if (newObj === null) return reject(new Error('New not found!'));
 
           this.article = newObj;
+
           return resolve([newObj]);
         })
-        .catch((err) => {
+        .catch((err: Error) => {
           reject(err);
         });
     });
   }
 
-  write(title, content, desc, personId, metadata) {
+  write(title: string, content: string, desc: string, personId: string, metadata: Record<string, unknown>): Promise<unknown> {
     const currentDate = new Date();
     const newObj = {
       _id: 0,
@@ -41,18 +47,16 @@ export default class News {
     };
 
     return new Promise((resolve, reject) => {
-      db.news.find({ $or: [{ path: this.path }, { title }] }, (err, doc) => {
+      news.find({ $or: [{ path: this.path }, { title }] }, (err: Error, doc: { length: number }) => {
         if (err) return reject(err);
         if (doc.length > 0) return reject(new Error('New already exists!'));
 
-        // eslint-disable-next-line consistent-return
-        return db.news.findOne({}, '_id', (getIdsErr, newsArticles) => {
+        return news.findOne({}, '_id', (getIdsErr: Error, newsArticles: { _id: number }) => {
           if (newsArticles !== null) {
-            // eslint-disable-next-line no-underscore-dangle
             newObj._id = newsArticles._id + 1;
           }
           if (getIdsErr) return reject(getIdsErr);
-          db.news.create(newObj, (createErr) => {
+          news.create(newObj, (createErr) => {
             if (createErr) return reject(createErr);
             return resolve(newObj);
           });
@@ -61,11 +65,11 @@ export default class News {
     });
   }
 
-  remove() {
-    return new Promise((resolve, reject) => {
-      db.news.deleteOne({
+  remove(): Promise<void> {
+    return new Promise<void>((resolve, reject) => {
+      news.deleteOne({
         path: this.path,
-      }, (err) => {
+      }, (err: Error) => {
         if (err) return reject(err);
 
         return resolve();
@@ -73,26 +77,26 @@ export default class News {
     });
   }
 
-  react(personId, weight) {
+  react(personId: string, weight: number) {
     return new Promise((resolve, reject) => {
-      db.news.updateOne({ path: this.path }, {
+      news.updateOne({ path: this.path }, {
         $push: { reactions: [personId, weight] },
-      }, (err, doc) => {
+      }, (err: Error, doc: Record<string, unknown>) => {
         if (err) return reject(err);
         return resolve(doc);
       });
     });
   }
 
-  comment(personId, content, replyToId) {
-    const filter = {
-      path: this.path,
+  comment(personId: string, content: string): Promise<void> {
+    const filter = { 
+      path: this.path
     };
 
     const update = {
       $push: {
         comments: {
-          _id: db.mongoose.Types.ObjectId(),
+          _id: new Types.ObjectId(),
           personId,
           content,
           comments: [],
@@ -101,23 +105,15 @@ export default class News {
       },
     };
 
-    if (replyToId !== undefined) {
-      filter['comments._id'] = replyToId !== undefined ? replyToId : undefined;
-
-      update.$push['comments.$.comments'] = update.$push.comments;
-      delete update.$push.comments;
-    }
-
     return new Promise((resolve, reject) => {
-      db.news.updateOne(filter, update, (err, doc) => {
+      news.updateOne(filter, update, (err: Error) => {
         if (err) return reject(err);
-
-        return resolve(doc);
+        resolve();
       });
     });
   }
 
-  static async seeCatalog(callback, filters, sort, limit) {
-    db.news.find(filters, callback).sort(sort).limit(limit);
+  static seeCatalog(callback: (err: Error, doc: unknown) => void, filters?: FilterQuery<unknown>, sort?: unknown, limit?: number) {
+    news.find(filters ?? {}, callback).sort(sort).limit(limit ?? 5);
   }
 }

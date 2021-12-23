@@ -1,5 +1,5 @@
-export namespace ENV {
-  interface ProcessEnv {
+declare namespace NodeJS {
+  export interface ProcessEnv {
     STANDARD_CONNECTION: string;
     NODE_ENV: string;
     DB_HOST: string;
