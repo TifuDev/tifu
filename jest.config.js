@@ -1,16 +1,14 @@
-const { pathsToModuleNameMapper } = require('ts-jest')
+const { pathsToModuleNameMapper } = require('ts-jest/utils')
 const { compilerOptions } = require('./tsconfig.json')
 
-/** @type {import('ts-jest/dist/types').InitialOptionsTsJest} */
 module.exports = {
+  roots: ['./src'],
+  modulePaths: [compilerOptions.baseUrl],
   preset: 'ts-jest',
   testEnvironment: 'node',
   setupFiles: ['dotenv/config'],
   globalSetup: './scripts/jest/globalSetup.js',
   verbose: true,
   collectCoverage: true,
-  moduleNameMapper: {
-    '^@api/(.*)$': './src/api/$1',
-    '^@utils/(.*)$': './src/utils/$1',
-  },
+  moduleNameMapper: pathsToModuleNameMapper(compilerOptions.paths),
 };

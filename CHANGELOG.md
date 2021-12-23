@@ -8,6 +8,24 @@ The format of changelog is based in [Keep a Changelog](https://keepachangelog.co
 
 Modifications not released will be documented here
 
+## 2.2.10 | 2021-09-25 Hytalo M. Bassi
+
+#### Added
+
+- news.test.ts
+- user.test.ts
+
+#### Removed
+
+- news.test.js
+- user.test.js
+
+#### Changed
+
+- tsconfig.json to be readale when importing
+- jest.config.js to be able to use Path Mappings
+- .eslintignore to stop ignoring tests and ignore jest config file
+
 ## 2.2.9 | 2021-09-25 Hytalo M. Bassi
 
 #### Added

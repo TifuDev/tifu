@@ -1,6 +1,5 @@
-require('@utils/db')
-const { connection } = require('mongoose')
-const { Person } = require('../api/user')
+import { connection } from 'mongoose'
+import Person from '../api/user'
 
 const personObj = new Person('username')
 const details = { profilePhotoUrl: null, bio: 'Biograph', nationality: 'us', gender: 0 }
