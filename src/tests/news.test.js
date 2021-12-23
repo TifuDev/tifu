@@ -1,5 +1,6 @@
-const { mongoose } = require('../utils/db')
-const { News } = require('../api/notice')
+require('@utils/db')
+const { connection } = require('mongoose');
+const { News } = require('../api/notice');
 
 const newObj = new News('test');
 const metadata = {
@@ -18,6 +19,6 @@ it('should return the new', () => expect(newObj.get()).resolves.not.toBeNull());
 it('should remove the new', () => expect(newObj.remove()).resolves.toBeUndefined());
 
 afterAll(done => {
-  mongoose.connection.close()
+  connection.close()
   done()
 });

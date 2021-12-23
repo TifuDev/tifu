@@ -8,6 +8,31 @@ The format of changelog is based in [Keep a Changelog](https://keepachangelog.co
 
 Modifications not released will be documented here
 
+## 2.2.9 | 2021-09-25 Hytalo M. Bassi
+
+#### Added
+
+- notice.ts
+- db.ts
+
+#### Removed
+
+- notice.js
+- db.js
+
+#### Changed
+
+- jest.config.js and is now using ts-jest as preset
+- app.ts to work correctly
+- global.d.ts to export ProcessEnv
+- middlewares.ts to work correctly
+- notice.ts have lost the feature replyToId in comments due to some errors
+- user.js to work correctly
+- news.test.js and now imports from '@utils'. Missing '@api'
+- user.test.js and now imports from '@utils'. Missing '@api'
+
+
+
 ## 2.2.8 | 2021-09-25 Hytalo M. Bassi
 
 #### Added

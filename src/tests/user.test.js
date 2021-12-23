@@ -1,4 +1,5 @@
-const { mongoose } = require('../utils/db')
+require('@utils/db')
+const { connection } = require('mongoose')
 const { Person } = require('../api/user')
 
 const personObj = new Person('username')
@@ -16,6 +17,6 @@ it('should login a user', () => expect(personObj.login(password)).resolves.not.t
 it('should remove a user', () => expect(personObj.remove()).resolves.toBeNull());
 
 afterAll(done => {
-  mongoose.connection.close()
+  connection.close()
   done()
 });
