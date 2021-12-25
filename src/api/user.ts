@@ -1,4 +1,4 @@
-import { hashString } from '@utils/hash';
+import hashString from '@utils/hash';
 import { user, news } from '@utils/db'; 
 import { CallbackError } from 'mongoose';
 import { sign } from 'jsonwebtoken';

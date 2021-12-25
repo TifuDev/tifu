@@ -1,6 +1,6 @@
 import 'dotenv/config';
 import { Request, Response, NextFunction } from 'express';
-import { newExists, validation, auth, isOwnerOfNew, newRequest, authenticatedNewRequest, authenticatedRequest } from './middlewares';
+import { newExists, validation, auth, isOwnerOfNew, newRequest, authenticatedNewRequest } from './middlewares';
 import { body, param, query } from 'express-validator';
 import swagger = require('swagger-ui-express');
 import express = require('express');
