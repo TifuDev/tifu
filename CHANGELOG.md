@@ -8,6 +8,13 @@ The format of changelog is based in [Keep a Changelog](https://keepachangelog.co
 
 Modifications not released will be documented here
 
+## 2.2.11 | 2021-12-25 Hytalo M. Bassi
+
+#### Changed
+
+- .dockerignore
+- Dockerfile to use yarn
+
 ## 2.2.11 | 2021-09-25 Hytalo M. Bassi
 
 #### Added
@@ -22,7 +29,7 @@ Modifications not released will be documented here
 
 - global.d.ts and now have type for PORT
 - user.ts to imports the hash.ts
-- app.ts to remove 'authenticatedRequest' is defined but never used warning 
+- app.ts to remove 'authenticatedRequest' is defined but never used warning
 
 ## 2.2.10 | 2021-09-25 Hytalo M. Bassi
 
