@@ -10,6 +10,8 @@ Modifications not released will be documented here
 
 ## 2.2.11 | 2021-12-25 Hytalo M. Bassi
 
+<<<<<<< HEAD
+
 #### Changed
 
 - .dockerignore
@@ -29,7 +31,22 @@ Modifications not released will be documented here
 
 - global.d.ts and now have type for PORT
 - user.ts to imports the hash.ts
-- app.ts to remove 'authenticatedRequest' is defined but never used warning
+- # app.ts to remove 'authenticatedRequest' is defined but never used warning
+
+#### Added
+
+- .prettierignore(prettier ignores files)
+- .prettierrc.json(prettier config)
+- .lintstagedrrc.json(lint-staged config)
+- commitlint.config.js(commitlint config)
+- commit-mgs at husky runs commitlint
+- pre-commit ensure the staged files are formatted and test
+
+#### Changed
+
+- .eslint.js extends prettier
+- package.json to add releases, husky prepare and format
+  > > > > > > > wip-17/automating-commits
 
 ## 2.2.10 | 2021-09-25 Hytalo M. Bassi
 
@@ -71,8 +88,6 @@ Modifications not released will be documented here
 - user.js to work correctly
 - news.test.js and now imports from '@utils'. Missing '@api'
 - user.test.js and now imports from '@utils'. Missing '@api'
-
-
 
 ## 2.2.8 | 2021-09-25 Hytalo M. Bassi
 
@@ -121,11 +136,11 @@ Modifications not released will be documented here
 #### Changed
 
 - '/new/:path/write' body to receives metadata properties
+
 #### Removed
 
 - personId verification
 - security.js from src/api
-
 
 ## 2.2.4 | 2021-09-24 Hytalo M. Bassi
 
@@ -156,7 +171,7 @@ Modifications not released will be documented here
 
 - routers for news now uses newExists middleware
 - router with request validation now uses validation middleware
-- News class now have property *article* to save newArticle object from database
+- News class now have property _article_ to save newArticle object from database
 
 ## 2.2.2 | 2021-09-23 Hytalo M. Bassi
 
@@ -195,6 +210,7 @@ Modifications not released will be documented here
 - personId from news.test.js
 
 ## 2.1.2 | 2021-09-02 Hytalo M. Bassi
+
 #### Added
 
 - pullRequest, comments, reacions when writing NewsArticle
@@ -212,7 +228,6 @@ Modifications not released will be documented here
 - roles for Person
 - pullRequest for News
 - comments for News
-
 
 ## 2.0.0 | 2021-08-09 Hytalo M. Bassi
 

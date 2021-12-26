@@ -1,5 +1,5 @@
-const { config } = require('dotenv');
+const { config } = require("dotenv");
 
 module.exports = () => {
-  config({ path: '.env.test' });
+  config({ path: ".env.test" });
 };

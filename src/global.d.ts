@@ -7,8 +7,8 @@ declare namespace NodeJS {
     DB_PWD: string;
     DB_PORT: string;
     DB_NAME: string;
-    ACCTOKEN_LIFE: string,
-    ACCTOKEN_SECRET: string,
-    PORT: string
+    ACCTOKEN_LIFE: string;
+    ACCTOKEN_SECRET: string;
+    PORT: string;
   }
 }
