@@ -6,6 +6,7 @@ Steps to configure a localhost to tifu
 * MongoDB
 * NodeJS
 * NPM tool
+* [Yarn Package manager](https://classic.yarnpkg.com/lang/en/docs/install/)
 
 *Or using docker*
 
@@ -14,7 +15,7 @@ Steps to configure a localhost to tifu
 ## Start
 Run this command when MongoDB service is running
 
-`npm start`
+`yarn start`
 
 ## Starting containers
 
