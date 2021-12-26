@@ -1,10 +1,10 @@
-import { news } from '@utils/db'
-import { FilterQuery, Types } from 'mongoose';
+import { news } from "@utils/db";
+import { FilterQuery, Types } from "mongoose";
 
 export default class News {
   path: string;
   article: {
-    author?: string
+    author?: string;
   };
   constructor(path: string) {
     this.path = path;
@@ -13,9 +13,10 @@ export default class News {
 
   get(): Promise<unknown> {
     return new Promise((resolve, reject) => {
-      news.findOneAndUpdate({ path: this.path }, { $inc: { downloads: 1 } })
-        .then(newObj => {
-          if (newObj === null) return reject(new Error('New not found!'));
+      news
+        .findOneAndUpdate({ path: this.path }, { $inc: { downloads: 1 } })
+        .then((newObj) => {
+          if (newObj === null) return reject(new Error("New not found!"));
 
           this.article = newObj;
 
@@ -27,7 +28,13 @@ export default class News {
     });
   }
 
-  write(title: string, content: string, desc: string, personId: string, metadata: Record<string, unknown>): Promise<unknown> {
+  write(
+    title: string,
+    content: string,
+    desc: string,
+    personId: string,
+    metadata: Record<string, unknown>
+  ): Promise<unknown> {
     const currentDate = new Date();
     const newObj = {
       _id: 0,
@@ -47,50 +54,66 @@ export default class News {
     };
 
     return new Promise((resolve, reject) => {
-      news.find({ $or: [{ path: this.path }, { title }] }, (err: Error, doc: { length: number }) => {
-        if (err) return reject(err);
-        if (doc.length > 0) return reject(new Error('New already exists!'));
+      news.find(
+        { $or: [{ path: this.path }, { title }] },
+        (err: Error, doc: { length: number }) => {
+          if (err) return reject(err);
+          if (doc.length > 0) return reject(new Error("New already exists!"));
 
-        return news.findOne({}, '_id', (getIdsErr: Error, newsArticles: { _id: number }) => {
-          if (newsArticles !== null) {
-            newObj._id = newsArticles._id + 1;
-          }
-          if (getIdsErr) return reject(getIdsErr);
-          news.create(newObj, (createErr) => {
-            if (createErr) return reject(createErr);
-            return resolve(newObj);
-          });
-        }).sort({ _id: -1 });
-      });
+          return news
+            .findOne(
+              {},
+              "_id",
+              (getIdsErr: Error, newsArticles: { _id: number }) => {
+                if (newsArticles !== null) {
+                  newObj._id = newsArticles._id + 1;
+                }
+                if (getIdsErr) return reject(getIdsErr);
+                news.create(newObj, (createErr) => {
+                  if (createErr) return reject(createErr);
+                  return resolve(newObj);
+                });
+              }
+            )
+            .sort({ _id: -1 });
+        }
+      );
     });
   }
 
   remove(): Promise<void> {
     return new Promise<void>((resolve, reject) => {
-      news.deleteOne({
-        path: this.path,
-      }, (err: Error) => {
-        if (err) return reject(err);
+      news.deleteOne(
+        {
+          path: this.path,
+        },
+        (err: Error) => {
+          if (err) return reject(err);
 
-        return resolve();
-      });
+          return resolve();
+        }
+      );
     });
   }
 
   react(personId: string, weight: number) {
     return new Promise((resolve, reject) => {
-      news.updateOne({ path: this.path }, {
-        $push: { reactions: [personId, weight] },
-      }, (err: Error, doc: Record<string, unknown>) => {
-        if (err) return reject(err);
-        return resolve(doc);
-      });
+      news.updateOne(
+        { path: this.path },
+        {
+          $push: { reactions: [personId, weight] },
+        },
+        (err: Error, doc: Record<string, unknown>) => {
+          if (err) return reject(err);
+          return resolve(doc);
+        }
+      );
     });
   }
 
   comment(personId: string, content: string): Promise<void> {
-    const filter = { 
-      path: this.path
+    const filter = {
+      path: this.path,
     };
 
     const update = {
@@ -113,7 +136,15 @@ export default class News {
     });
   }
 
-  static seeCatalog(callback: (err: Error, doc: unknown) => void, filters?: FilterQuery<unknown>, sort?: unknown, limit?: number) {
-    news.find(filters ?? {}, callback).sort(sort).limit(limit ?? 5);
+  static seeCatalog(
+    callback: (err: Error, doc: unknown) => void,
+    filters?: FilterQuery<unknown>,
+    sort?: unknown,
+    limit?: number
+  ) {
+    news
+      .find(filters ?? {}, callback)
+      .sort(sort)
+      .limit(limit ?? 5);
   }
 }

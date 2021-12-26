@@ -15,8 +15,5 @@
     }
   },
   "remoteUser": "node",
-  "extensions": [
-    "dbaeumer.vscode-eslint",
-    "EditorConfig.EditorConfig"
-  ]
+  "extensions": ["dbaeumer.vscode-eslint", "EditorConfig.EditorConfig"]
 }
