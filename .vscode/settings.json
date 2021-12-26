@@ -1,5 +1,9 @@
 {
     "editor.tabSize": 2,
     "editor.detectIndentation": false,
-    "jest.jestCommandLine": "yarn test"
+    "jest.jestCommandLine": "yarn test",
+    "editor.codeActionsOnSave": {
+      "source.organizeImports": true
+    },
+    "typescript.updateImportsOnFileMove.enabled": "prompt"
 }
