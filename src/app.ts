@@ -153,14 +153,16 @@ app.get(
     }
 
     if (req.query.id !== undefined) {
-      return Person.getById(req.query.id as string).then((person) =>
-        person
-          .get()
-          .then((user) => res.json(user))
-          .catch((err: Error) =>
-            res.status(500).send(`An error occured! ${err.message}`)
-          )
-      );
+      return Person.getById(req.query.id as string)
+        .then((person) =>
+          person
+            .get()
+            .then((user) => res.json(user))
+            .catch((err) =>
+              res.status(500).send(`An error occured! ${err.message}`)
+            )
+        )
+        .catch((err) => res.status(404).send(err.message));
     }
 
     return res

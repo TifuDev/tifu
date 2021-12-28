@@ -1,12 +1,12 @@
 # Changelog
 
-Changes to the software will be documented here.
+All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
-The format of changelog is based in [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) and [Semantic Version](https://semver.org/spec/v2.0.0.html)
+## [2.3.0](https://github.com/hytalo-bassi/tifu/compare/v1.1.6...v2.3.0) (2021-12-28)
 
-## Unreleased
+### Bug Fixes
 
-Modifications not released will be documented here
+- **hotfix:** user-not-found crash fixed ([61cc26d](https://github.com/hytalo-bassi/tifu/commit/61cc26d777833afc6fb882e9d214800a744b4063)), closes [#11](https://github.com/hytalo-bassi/tifu/issues/11)
 
 ## 2.2.11 | 2021-12-25 Hytalo M. Bassi
 
