@@ -16,7 +16,11 @@ _Or using docker_
 
 Run this command when MongoDB service is running
 
-`npm start`
+`yarn`
+
+`yarn prepare`
+
+`yarn watch`
 
 ## Starting containers
 
@@ -62,3 +66,15 @@ For this process we make use of the [ESLint](https://eslint.org/) tool.
 
 The tests will make you have sure your codes will not break another components or features. You MUST test after linting your code and before commiting them.
 Making new tests are RECOMMENDED to guarantee the software works. The testing tool we are using is [Jest](https://jestjs.io/)
+
+#### Commiting
+
+We use some tools to help developers commit their changes correctly.
+
+`yarn commit`
+
+This is essential when commiting your changes
+
+The script asks the developer the type of the change, it's scope and a subject.
+After it will lint to ensure it maintains a commit message structure.
+And after all, lint the code and format if needed.
