@@ -1,12 +1,22 @@
 # Changelog
 
-Changes to the software will be documented here.
+All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
-The format of changelog is based in [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) and [Semantic Version](https://semver.org/spec/v2.0.0.html)
+## [2.3.0](https://github.com/hytalo-bassi/tifu/compare/v1.1.6...v2.3.0) (2021-12-28)
 
-## Unreleased
+### Features
 
-Modifications not released will be documented here
+- /person/get/ route ([28c2266](https://github.com/hytalo-bassi/tifu/commit/28c22668dcaf045a55557dd0693691f99af1bac6))
+- author role verification ([934d26c](https://github.com/hytalo-bassi/tifu/commit/934d26c3656613823bff6e357000b50e508a8c67))
+- cors ([5cdacf5](https://github.com/hytalo-bassi/tifu/commit/5cdacf5c348b3dfca80df6dff3f1705b76cf3bc0))
+- cors added ([3d15c96](https://github.com/hytalo-bassi/tifu/commit/3d15c9642144c2faebcafa6e9ee2697f9721e16e))
+- getByID ([05e1f79](https://github.com/hytalo-bassi/tifu/commit/05e1f79ad3c7ff50ac3859daf5e490a8c000fba0))
+- new database structure ([a2c7e47](https://github.com/hytalo-bassi/tifu/commit/a2c7e475668018280cdfa05133e8ff375c351721))
+- react and comment methods added ([ef14bda](https://github.com/hytalo-bassi/tifu/commit/ef14bda7e5681c30af6416d11ffc43c1171c9c1e))
+
+### Bug Fixes
+
+- **hotfix:** user-not-found crash fixed ([61cc26d](https://github.com/hytalo-bassi/tifu/commit/61cc26d777833afc6fb882e9d214800a744b4063)), closes [#11](https://github.com/hytalo-bassi/tifu/issues/11)
 
 ## 2.2.11 | 2021-12-25 Hytalo M. Bassi
 
