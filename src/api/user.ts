@@ -73,7 +73,7 @@ export default class Person {
 
   static getById(id: string): Promise<Person> {
     return new Promise((resolve, reject) => {
-      user.findOne({ _id: id }, (err: Error, doc: { username: string }) => {
+      user.findOne({ _id: id }, (err: Error, doc: Person) => {
         if (err) return reject(err);
         if (doc === null) return reject(new Error("User not found"));
 

@@ -2,7 +2,7 @@
   "name": "tifu",
   "version": "2.2.11",
   "description": "Steps to configure a localhost to tifu",
-  "main": "src/app.js",
+  "main": "dist/app.js",
   "scripts": {
     "watch": "ts-node-dev --watch --debug -r tsconfig-paths/register -- ./src/app.ts",
     "start": "node -r module-alias/register ./dist/app.js",
