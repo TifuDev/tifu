@@ -26,12 +26,12 @@
     }
   ],
   "paths": {
-    "/catalog":{
+    "/catalog": {
       "get": {
         "tags": ["News catalog"],
         "description": "Return JSON containing an array of news",
         "operationId": "getCatalog",
-        "responses":{
+        "responses": {
           "200": {
             "description": "Catalog obtained",
             "content": {
@@ -50,16 +50,18 @@
         "tags": ["News"],
         "description": "Return New in JSON object",
         "operationId": "getNew",
-        "parameters": [{
-          "in": "path",
-          "name": "path",
-          "required": true,
-          "schema": {
-            "type": "string"
-          },
-          "description": "Path for new"
-        }],
-        "responses":{
+        "parameters": [
+          {
+            "in": "path",
+            "name": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Path for new"
+          }
+        ],
+        "responses": {
           "200": {
             "description": "New obtained",
             "content": {
@@ -81,18 +83,22 @@
         "tags": ["News"],
         "description": "Modify content of New",
         "operationId": "modifyNew",
-        "parameters": [{
-          "in": "path",
-          "name": "path",
-          "required": true,
-          "schema": {
-            "type": "string"
-          },
-          "description": "Path for new"
-        }],
-        "security": [{
-          "BearerAuth": ["admin"]
-        }],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Path for new"
+          }
+        ],
+        "security": [
+          {
+            "BearerAuth": ["admin"]
+          }
+        ],
         "responses": {
           "200": {
             "description": "New modified"
@@ -154,39 +160,41 @@
         "description": "Write new",
         "operationId": "writeNew",
         "requestBody": {
-            "required": true,
-            "content": {
-                "application/x-www-form-urlencoded": {
+          "required": true,
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "title": {
+                    "description": "Title of new",
                     "schema": {
-                        "type": "object",
-                        "properties": {
-                            "title": {
-                                "description": "Title of new",
-                                "schema": {
-                                    "type": "string"
-                                }
-                            },
-                            "desc": {
-                                "description": "Description of new",
-                                "schema": {
-                                    "type": "string"
-                                }
-                            },
-                            "content": {
-                                "description": "Content of new",
-                                "schema": {
-                                    "type": "string"
-                                }
-                            }
-                        },
-                        "required": ["username", "passwd"]
+                      "type": "string"
                     }
-                }
+                  },
+                  "desc": {
+                    "description": "Description of new",
+                    "schema": {
+                      "type": "string"
+                    }
+                  },
+                  "content": {
+                    "description": "Content of new",
+                    "schema": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "required": ["username", "passwd"]
+              }
             }
+          }
         },
-        "security": [{
+        "security": [
+          {
             "BearerAuth": ["admin"]
-        }],
+          }
+        ],
         "responses": {
           "201": {
             "description": "New created successfully",
@@ -201,21 +209,23 @@
         }
       }
     },
-    "/person/{username}":{
+    "/person/{username}": {
       "get": {
         "tags": ["Person"],
         "description": "Return a Person Object",
         "operationId": "getPerson",
-        "parameters": [{
-          "in": "path",
-          "name": "username",
-          "required": true,
-          "schema": {
-            "type": "string"
-          },
-          "description": "Path for new"
-        }],
-        "responses":{
+        "parameters": [
+          {
+            "in": "path",
+            "name": "username",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Path for new"
+          }
+        ],
+        "responses": {
           "200": {
             "description": "New obtained",
             "content": {
@@ -239,7 +249,7 @@
     },
     "schema": {
       "Catalog": {
-        "type":"array",
+        "type": "array",
         "items": {
           "$ref": "#/components/schema/New"
         }
@@ -262,7 +272,7 @@
                   "keywords": {
                     "type": "array",
                     "items": {
-                      "type":"string"
+                      "type": "string"
                     }
                   },
                   "isBasedOn": {
@@ -278,7 +288,7 @@
                     "type": "string"
                   },
                   "accessMode": {
-                    "type" :"string"
+                    "type": "string"
                   }
                 }
               },
@@ -322,7 +332,7 @@
                 }
               },
               "profilePhotoUrl": {
-                "type":"string"
+                "type": "string"
               },
               "bio": {
                 "type": "string"

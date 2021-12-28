@@ -1,12 +1,112 @@
 # Changelog
 
-Changes to the software will be documented here.
+All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
-The format of changelog is based in [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) and [Semantic Version](https://semver.org/spec/v2.0.0.html)
+## [2.3.0](https://github.com/hytalo-bassi/tifu/compare/v1.1.6...v2.3.0) (2021-12-28)
 
-## Unreleased
+### Bug Fixes
 
-Modifications not released will be documented here
+- **hotfix:** user-not-found crash fixed ([61cc26d](https://github.com/hytalo-bassi/tifu/commit/61cc26d777833afc6fb882e9d214800a744b4063)), closes [#11](https://github.com/hytalo-bassi/tifu/issues/11)
+
+## 2.2.11 | 2021-12-25 Hytalo M. Bassi
+
+<<<<<<< HEAD
+
+#### Changed
+
+- .dockerignore
+- Dockerfile to use yarn
+
+## 2.2.11 | 2021-09-25 Hytalo M. Bassi
+
+#### Added
+
+- hash.ts
+
+#### Removed
+
+- hash.js
+
+#### Changed
+
+- global.d.ts and now have type for PORT
+- user.ts to imports the hash.ts
+- # app.ts to remove 'authenticatedRequest' is defined but never used warning
+
+#### Added
+
+- .prettierignore(prettier ignores files)
+- .prettierrc.json(prettier config)
+- .lintstagedrrc.json(lint-staged config)
+- commitlint.config.js(commitlint config)
+- commit-mgs at husky runs commitlint
+- pre-commit ensure the staged files are formatted and test
+
+#### Changed
+
+- .eslint.js extends prettier
+- package.json to add releases, husky prepare and format
+  > > > > > > > wip-17/automating-commits
+
+## 2.2.10 | 2021-09-25 Hytalo M. Bassi
+
+#### Added
+
+- news.test.ts
+- user.test.ts
+
+#### Removed
+
+- news.test.js
+- user.test.js
+
+#### Changed
+
+- tsconfig.json to be readale when importing
+- jest.config.js to be able to use Path Mappings
+- .eslintignore to stop ignoring tests and ignore jest config file
+
+## 2.2.9 | 2021-09-25 Hytalo M. Bassi
+
+#### Added
+
+- notice.ts
+- db.ts
+
+#### Removed
+
+- notice.js
+- db.js
+
+#### Changed
+
+- jest.config.js and is now using ts-jest as preset
+- app.ts to work correctly
+- global.d.ts to export ProcessEnv
+- middlewares.ts to work correctly
+- notice.ts have lost the feature replyToId in comments due to some errors
+- user.js to work correctly
+- news.test.js and now imports from '@utils'. Missing '@api'
+- user.test.js and now imports from '@utils'. Missing '@api'
+
+## 2.2.8 | 2021-09-25 Hytalo M. Bassi
+
+#### Added
+
+- middleware.ts
+- global.d.ts to have typings in global
+- users.ts
+
+#### Remove
+
+- user.js
+- middleware.js
+
+#### Changed
+
+- tsconfig.json to have path mappings and global types
+- app.ts using types
+- notice.js now exports by default the News class and seeCatalog is part of News now
 
 ## 2.2.7 | 2021-09-25 Hytalo M. Bassi
 
@@ -36,11 +136,11 @@ Modifications not released will be documented here
 #### Changed
 
 - '/new/:path/write' body to receives metadata properties
+
 #### Removed
 
 - personId verification
 - security.js from src/api
-
 
 ## 2.2.4 | 2021-09-24 Hytalo M. Bassi
 
@@ -71,7 +171,7 @@ Modifications not released will be documented here
 
 - routers for news now uses newExists middleware
 - router with request validation now uses validation middleware
-- News class now have property *article* to save newArticle object from database
+- News class now have property _article_ to save newArticle object from database
 
 ## 2.2.2 | 2021-09-23 Hytalo M. Bassi
 
@@ -110,6 +210,7 @@ Modifications not released will be documented here
 - personId from news.test.js
 
 ## 2.1.2 | 2021-09-02 Hytalo M. Bassi
+
 #### Added
 
 - pullRequest, comments, reacions when writing NewsArticle
@@ -127,7 +228,6 @@ Modifications not released will be documented here
 - roles for Person
 - pullRequest for News
 - comments for News
-
 
 ## 2.0.0 | 2021-08-09 Hytalo M. Bassi
 
