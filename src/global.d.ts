@@ -10,5 +10,10 @@ declare namespace NodeJS {
     ACCTOKEN_LIFE: string;
     ACCTOKEN_SECRET: string;
     PORT: string;
+    REDIS_PORT: string;
+    REDIS_HOST: string;
+    REDIS_USER: string;
+    REDIS_PWD: string;
+    REDIS_DB_NUMBER: string;
   }
 }
