@@ -1,4 +1,4 @@
-from logging import info, error
+from .logging import info, error
 import requests as req
 from colorama import Fore
 from os import _exit
@@ -34,6 +34,7 @@ class Request:
   def login(self):
     # Throw an error if username or pwd have not been passed to kwargs
     if self.username == None or self.pwd == None:
+      error('No username or password!')
       raise Exception('There is no username or password!')
 
     data = {
@@ -60,4 +61,10 @@ class Request:
         return self.authenticated_request(path, data)
       error(res.text)
       res.raise_for_status()
+    return res.json()
+
+
+  def get(self, path):
+    res = req.get(self.url(path))
+
     return res.json()
